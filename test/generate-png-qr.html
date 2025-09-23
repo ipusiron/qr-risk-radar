@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Risk Radar - テストQRコード(PNG)生成</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .controls {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #5a67d8;
+        }
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            border-left: 4px solid #0ea5e9;
+        }
+        .qr-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .qr-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .qr-container {
+            margin: 15px 0;
+            min-height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed #e2e8f0;
+            border-radius: 8px;
+        }
+        .qr-code {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+        }
+        .risk-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-left: 8px;
+        }
+        .risk-high { background: #fee2e2; color: #dc2626; }
+        .risk-medium { background: #fef3c7; color: #d97706; }
+        .risk-safe { background: #dcfce7; color: #16a34a; }
+        .test-url {
+            font-family: monospace;
+            font-size: 0.85rem;
+            background: #f1f5f9;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            word-break: break-all;
+            border-left: 4px solid #667eea;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>🎯 テストQRコード(PNG)生成</h1>
+        <p>各攻撃タイプの代表的なテストケースのPNG形式QRコードを生成します</p>
+        <p><strong>⚠️ これらはセキュリティテスト専用です</strong></p>
+    </div>
+
+    <div class="controls">
+        <button class="btn" onclick="generateAllQRCodes()">🔄 全QRコード生成</button>
+        <button class="btn" onclick="downloadAllQRCodes()">📥 PNG一括ダウンロード</button>
+        <button class="btn" onclick="clearAllQRCodes()">🗑️ クリア</button>
+    </div>
+
+    <div class="status" id="status">
+        準備完了：「全QRコード生成」をクリックして開始してください
+    </div>
+
+    <div class="qr-grid" id="qrGrid">
+        <!-- QRコードアイテムはJavaScriptで動的生成 -->
+    </div>
+
+    <script>
+        // 代表的なテストケース
+        const testCases = [
+            {
+                name: "ホモグラフ攻撃",
+                filename: "01_homograph_attack",
+                url: "https://аmazon.com/login",
+                description: "キリル文字 'а' でAmazonを偽装",
+                category: "フィッシング攻撃",
+                risk: "high"
+            },
+            {
+                name: "危険なスキーム",
+                filename: "05_dangerous_scheme",
+                url: "javascript:alert('XSS Test')",
+                description: "JavaScript直接実行によるXSS攻撃",
+                category: "技術的脅威",
+                risk: "high"
+            },
+            {
+                name: "短縮URL",
+                filename: "09_shortened_url",
+                url: "https://bit.ly/3xY9Abc",
+                description: "実際の遷移先が不明な短縮URL",
+                category: "難読化・隠蔽",
+                risk: "medium"
+            },
+            {
+                name: "複合攻撃（超高リスク）",
+                filename: "13_complex_attack",
+                url: "javascript:window.location='http://192.168.1.1:8080/malware.exe'",
+                description: "危険スキーム+IP+非標準ポート+実行ファイル",
+                category: "複合攻撃",
+                risk: "high"
+            },
+            {
+                name: "安全なURL",
+                filename: "14_safe_url",
+                url: "https://www.google.com/",
+                description: "完全に安全な正規URL（偽陽性チェック用）",
+                category: "正常URL",
+                risk: "safe"
+            }
+        ];
+
+        // ページ初期化
+        function initializePage() {
+            const grid = document.getElementById('qrGrid');
+            
+            testCases.forEach((testCase, index) => {
+                const item = document.createElement('div');
+                item.className = 'qr-item';
+                item.innerHTML = `
+                    <h3>
+                        ${testCase.name}
+                        <span class="risk-badge risk-${testCase.risk}">
+                            ${testCase.risk === 'safe' ? 'Safe' : testCase.risk.charAt(0).toUpperCase() + testCase.risk.slice(1)}
+                        </span>
+                    </h3>
+                    <p><strong>カテゴリ:</strong> ${testCase.category}</p>
+                    <p><strong>説明:</strong> ${testCase.description}</p>
+                    <div class="test-url">${testCase.url}</div>
+                    <div class="qr-container" id="qr-${testCase.filename}">
+                        <div style="color: #64748b;">QRコード未生成</div>
+                    </div>
+                    <div>
+                        <button class="btn" onclick="generateSingleQR('${testCase.filename}', '${testCase.url.replace(/'/g, "\\'")}')">
+                            🔄 このQRコードを生成
+                        </button>
+                        <button class="btn" onclick="downloadSingleQR('${testCase.filename}')">
+                            📥 PNGダウンロード
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(item);
+            });
+        }
+
+        // 単一QRコード生成
+        function generateSingleQR(filename, url) {
+            const container = document.getElementById(`qr-${filename}`);
+            container.innerHTML = '<div style="color: #667eea;">生成中...</div>';
+
+            // QRコードをCanvasで生成
+            QRCode.toCanvas(url, {
+                width: 200,
+                height: 200,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                },
+                errorCorrectionLevel: 'M'
+            }, function (error, canvas) {
+                if (error) {
+                    container.innerHTML = '<div style="color: #dc2626;">エラー: QRコード生成に失敗</div>';
+                    console.error(error);
+                } else {
+                    container.innerHTML = '';
+                    canvas.id = `canvas-${filename}`;
+                    canvas.className = 'qr-code';
+                    container.appendChild(canvas);
+                }
+            });
+        }
+
+        // 全QRコード生成
+        function generateAllQRCodes() {
+            const status = document.getElementById('status');
+            status.innerHTML = '🔄 QRコードを生成中...';
+            
+            let completed = 0;
+            const total = testCases.length;
+
+            testCases.forEach((testCase, index) => {
+                setTimeout(() => {
+                    generateSingleQR(testCase.filename, testCase.url);
+                    completed++;
+                    
+                    if (completed === total) {
+                        status.innerHTML = `✅ 完了: ${total}個のQRコードを生成しました（PNG形式でダウンロード可能）`;
+                    } else {
+                        status.innerHTML = `🔄 生成中... (${completed}/${total})`;
+                    }
+                }, index * 200);
+            });
+        }
+
+        // 単一QRコードダウンロード
+        function downloadSingleQR(filename) {
+            const canvas = document.getElementById(`canvas-${filename}`);
+            if (canvas) {
+                const link = document.createElement('a');
+                link.download = `${filename}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } else {
+                alert('QRコードが生成されていません。先に生成してください。');
+            }
+        }
+
+        // 全QRコード一括ダウンロード
+        function downloadAllQRCodes() {
+            let downloadCount = 0;
+            
+            testCases.forEach((testCase, index) => {
+                const canvas = document.getElementById(`canvas-${testCase.filename}`);
+                if (canvas) {
+                    setTimeout(() => {
+                        const link = document.createElement('a');
+                        link.download = `${testCase.filename}.png`;
+                        link.href = canvas.toDataURL('image/png');
+                        link.click();
+                        downloadCount++;
+                    }, index * 300); // 300ms間隔でダウンロード
+                }
+            });
+
+            if (downloadCount === 0) {
+                alert('QRコードが生成されていません。先に「全QRコード生成」を実行してください。');
+            }
+        }
+
+        // 全QRコードクリア
+        function clearAllQRCodes() {
+            testCases.forEach(testCase => {
+                const container = document.getElementById(`qr-${testCase.filename}`);
+                if (container) {
+                    container.innerHTML = '<div style="color: #64748b;">QRコード未生成</div>';
+                }
+            });
+            
+            document.getElementById('status').innerHTML = '🗑️ すべてのQRコードをクリアしました';
+        }
+
+        // ページ読み込み時に初期化
+        window.addEventListener('load', initializePage);
+    </script>
+</body>
+</html>

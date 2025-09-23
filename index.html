@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QR Risk Radar</title>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self'; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; worker-src 'self' blob: https://unpkg.com https://cdn.jsdelivr.net;" />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+    <!--
+      QR Risk Radar — lightweight client‑side tool for analyzing URLs/text for
+      security risks and producing a corresponding QR code.  This page loads
+      styling from ``style.css``, the QRCode library (``qrcode.min.js``)
+      embedded in this repository, and the application logic from ``app.js``.
+      All processing happens locally in your browser.
+    -->
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>🛡️ QR Risk Radar</h1>
+      <p class="tagline">
+        URLとQRコードのセキュリティリスクとフィッシングパターンを分析
+      </p>
+    </header>
+    <main>
+      <!-- Tab navigation -->
+      <div class="tabs">
+        <button class="tab-button active" data-tab="manual">
+          <span class="tab-icon">⌨️</span>
+          手動入力
+        </button>
+        <button class="tab-button" data-tab="qrscan">
+          <span class="tab-icon">📷</span>
+          QRスキャナー
+        </button>
+      </div>
+
+      <!-- Tab content -->
+      <div class="tab-content">
+        <!-- Manual input tab -->
+        <div id="manual-tab" class="tab-pane active">
+          <div class="help-text">
+            <p>💡 セキュリティリスクを分析するURLまたはテキストを入力してください。</p>
+            <p><strong>🎓 学習用サンプル：</strong> 以下のカードから攻撃パターンを選んで実際に体験できます：</p>
+          </div>
+
+          <!-- Guided attack catalog so testers can populate the analyzer quickly -->
+          <div class="attack-categories">
+            <!-- フィッシング攻撃カテゴリ -->
+            <details class="attack-category">
+              <summary class="category-header">
+                <span class="category-icon">🎯</span>
+                <span class="category-title">フィッシング攻撃</span>
+                <span class="category-count">4種類</span>
+              </summary>
+              <div class="attack-list">
+                <div class="attack-item">
+                  <button class="attack-btn sample-btn" data-url="https://аmazon.com/login">
+                    <span class="attack-name">ホモグラフ攻撃</span>
+                    <span class="risk-badge risk-high">High</span>
+                  </button>
+                  <p class="attack-description">見た目が似たキリル文字で正規サイトを偽装</p>
+                </div>
+
+                <div class="attack-item">
+                  <button class="attack-btn sample-btn" data-url="https://login-amazon.secure-verification.com">
+                    <span class="attack-name">フィッシングドメイン</span>
+                    <span class="risk-badge risk-medium">Medium</span>
+                  </button>
+                  <p class="attack-description">正規サービス名を含む偽のドメインで信頼性を装う</p>
+                </div>
+
+                <div class="attack-item">
+                  <button class="attack-btn sample-btn" data-url="https://g00gle.com/search">
+                    <span class="attack-name">タイポスクワッティング</span>
+                    <span class="risk-badge risk-high">High</span>
+                  </button>
+                  <p class="attack-description">有名サイト名の文字を置換して利用者を騙す</p>
+                </div>
+
+                <div class="attack-item">
+                  <button class="attack-btn sample-btn" data-url="http://secure-paypal.verification.tk/login">
+                    <span class="attack-name">疑わしいTLD</span>
+                    <span class="risk-badge risk-medium">Medium</span>
+                  </button>
+                  <p class="attack-description">信頼性の低いトップレベルドメインを悪用</p>
+                </div>
+              </div>
+            </details>
+
+            <!-- 難読化・隠蔽カテゴリ -->
+            <details class="attack-category">
+              <summary class="category-header">
+                <span class="category-icon">🫥</span>
+                <span class="category-title">難読化・隠蔽</span>
+                <span class="category-count">4種類</span>
+              </summary>
+              <div class="attack-list">
+                <div class="attack-item">
+                  <button class="attack-btn sample-btn" data-url="https://bit.ly/3xY9Abc">
+                    <span class="attack-name">短縮URL</span>
+                    <span class="risk-badge risk-medium">Medium</span>
+                  </button>
+                  <p class="attack-description">実際の遷移先が不明な短縮URLサービスを悪用</p>
+                </div>
+
+                <div class="attack-item">
+                  <button class="attack-btn sample-btn" data-url="https://example.com/path?data=aHR0cDovL2V2aWwuY29tL21hbHdhcmUuZXhl">
+                    <span class="attack-name">Base64難読化</span>
+                    <span class="risk-badge risk-medium">Medium</span>
+                  </button>
+                  <p class="attack-description">エンコードにより悪意あるURLの内容を隠蔽</p>
+                </div>
+
+                <div class="attack-item">
+                  <button class="attack-btn sample-btn" data-url="data:text/html,<script>alert('XSS')</script>">
+                    <span class="attack-name">Data URI攻撃</span>
+                    <span class="risk-badge risk-high">High</span>
+                  </button>
+                  <p class="attack-description">データURIを使った悪意あるコードの直接実行</p>
+                </div>
+
+                <div class="attack-item">
+                  <button class="attack-btn sample-btn" data-url="https://example.com/redirect?url=http://evil.com">
+                    <span class="attack-name">オープンリダイレクト</span>
+                    <span class="risk-badge risk-medium">Medium</span>
+                  </button>
+                  <p class="attack-description">正規サイト経由で悪意あるサイトへ誘導</p>
+                </div>
+              </div>
+            </details>
+
+            <!-- 技術的脅威カテゴリ -->
+            <details class="attack-category">
+              <summary class="category-header">
+                <span class="category-icon">⚠️</span>
+                <span class="category-title">技術的脅威</span>
+                <span class="category-count">4種類</span>
+              </summary>
+              <div class="attack-list">
+                <div class="attack-item">
+                  <button class="attack-btn sample-btn" data-url="http://192.168.1.1/login">
+                    <span class="attack-name">怪しいIPアドレス</span>
+                    <span class="risk-badge risk-medium">Medium</span>
+                  </button>
+                  <p class="attack-description">ドメイン名ではなく直接IPアドレスを使用</p>
+                </div>
+
+                <div class="attack-item">
+                  <button class="attack-btn sample-btn" data-url="javascript:alert('test')">
+                    <span class="attack-name">危険なスキーム</span>
+                    <span class="risk-badge risk-high">High</span>
+                  </button>
+                  <p class="attack-description">JavaScriptコードの直接実行によるXSS攻撃</p>
+                </div>
+
+                <div class="attack-item">
+                  <button class="attack-btn sample-btn" data-url="https://shortener.com/abc?redirect=malware.exe">
+                    <span class="attack-name">実行ファイルDL</span>
+                    <span class="risk-badge risk-high">High</span>
+                  </button>
+                  <p class="attack-description">マルウェアの直接ダウンロードリンク</p>
+                </div>
+
+                <div class="attack-item">
+                  <button class="attack-btn sample-btn" data-url="https://example.com:8080/admin">
+                    <span class="attack-name">非標準ポート</span>
+                    <span class="risk-badge risk-low">Low</span>
+                  </button>
+                  <p class="attack-description">通常と異なるポート番号の使用で警戒心を削ぐ</p>
+                </div>
+              </div>
+            </details>
+          </div>
+          <div class="input-group">
+            <label for="payload">分析するURLまたはテキスト</label>
+            <textarea
+              id="payload"
+              placeholder="例: https://example.com/login?redirect=http://evil.com"
+              rows="4"
+            ></textarea>
+          </div>
+          <div class="button-bar">
+            <button id="analyzeBtn" class="primary-btn">
+              <span class="btn-icon">🔍</span>
+              分析する
+            </button>
+            <button id="clearBtn" class="secondary-btn">
+              <span class="btn-icon">🗑️</span>
+              すべてクリア
+            </button>
+          </div>
+        </div>
+
+        <!-- QR scan tab -->
+        <!-- QR decoder tab: camera controls + offline image upload flow -->
+        <div id="qrscan-tab" class="tab-pane">
+          <div class="help-text">
+            <p>💡 カメラを使ってQRコードをスキャンするか、画像ファイルをアップロードしてください</p>
+          </div>
+          <div class="scan-controls">
+            <button id="startCameraBtn" class="primary-btn">
+              <span class="btn-icon">📹</span>
+              カメラ開始
+            </button>
+            <button id="stopCameraBtn" class="secondary-btn" disabled>
+              <span class="btn-icon">⏹️</span>
+              カメラ停止
+            </button>
+            <label for="fileInput" class="file-upload-btn">
+              <span class="btn-icon">📁</span>
+              画像を選択
+              <input type="file" id="fileInput" accept="image/*" />
+            </label>
+          </div>
+          <!-- Live camera preview; hidden when only image uploads are used -->
+          <div class="camera-container">
+            <video id="preview" class="hidden" playsinline></video>
+            <div id="camera-loading" class="loading-indicator hidden">
+              <div class="spinner"></div>
+              <p>カメラを初期化中...</p>
+            </div>
+          </div>
+          <!-- Populated with decoded text and preview image once a QR code is read -->
+          <div id="decodedOutput" class="decoded-output hidden">
+            <div id="qrImagePreview" class="qr-image-preview hidden">
+              <h3>📷 QRコード：</h3>
+              <div class="qr-preview-container">
+                <img id="qrPreviewImg" class="qr-preview-image" alt="QRコード" />
+                <div class="qr-preview-info">
+                  <span id="qrImageName" class="qr-image-name"></span>
+                  <span id="qrImageSize" class="qr-image-size"></span>
+                  <button id="downloadQRBtn" class="qr-download-btn hidden">
+                    <span class="btn-icon">📥</span>
+                    QRコードを保存
+                  </button>
+                </div>
+              </div>
+            </div>
+            <h3>📋 デコードされた内容：</h3>
+            <div class="decoded-text"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analysis result display -->
+      <!-- Risk analysis summary is rendered here by app.js -->
+      <div id="result" class="result hidden"></div>
+
+      <!-- Whitelist management -->
+      <div class="whitelist-section">
+        <h3>✅ 信頼できるドメイン（ホワイトリスト）</h3>
+        <div class="whitelist-controls">
+          <input type="text" id="whitelistInput" placeholder="example.com" />
+          <button id="addWhitelistBtn" class="small-btn">追加</button>
+        </div>
+        <div id="whitelistItems" class="whitelist-items"></div>
+      </div>
+    </main>
+    <footer>
+      <div class="footer">
+        🔗 GitHubリポジトリはこちら（ <a href="https://github.com/ipusiron/infoquantity-academy" target="_blank">ipusiron/infoquantity-academy</a> ）
+      </div>
+    </footer>
+    <!-- Load app.js first so functions are available for error handlers -->
+    <script src="app.js"></script>
+    <!-- Load the QR code generation library for creating clean QR previews -->
+    <script 
+      src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"
+      onload="window.qrCodeLibraryLoaded = true; console.log('QR code generation library loaded successfully');"
+      onerror="console.log('Primary QR code library failed, trying fallback...'); if (typeof loadFallbackQRCodeLibrary === 'function') loadFallbackQRCodeLibrary();">
+    </script>
+    <!-- Load the QR scanner library for reading QR codes from camera/images -->
+    <script 
+      src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.umd.min.js"
+      onerror="console.error('Failed to load QR scanner library from CDN'); if (typeof loadFallbackScanner === 'function') loadFallbackScanner();">
+    </script>
+  </body>
+</html>

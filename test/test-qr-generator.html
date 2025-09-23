@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Risk Radar - テスト用QRコード生成器</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .test-category {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .category-title {
+            color: #667eea;
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 15px;
+        }
+        .test-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f8fafc;
+        }
+        .test-item h4 {
+            margin: 0 0 10px 0;
+            color: #1e293b;
+            font-size: 1rem;
+        }
+        .test-url {
+            font-family: monospace;
+            font-size: 0.85rem;
+            background: #e2e8f0;
+            padding: 8px;
+            border-radius: 4px;
+            margin: 10px 0;
+            word-break: break-all;
+        }
+        .qr-container {
+            text-align: center;
+            margin: 15px 0;
+        }
+        .qr-code {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+            display: inline-block;
+        }
+        .generate-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin: 5px;
+        }
+        .generate-btn:hover {
+            background: #5a67d8;
+        }
+        .risk-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .risk-high { background: #fee2e2; color: #dc2626; }
+        .risk-medium { background: #fef3c7; color: #d97706; }
+        .risk-low { background: #fef7cd; color: #ca8a04; }
+        .control-panel {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .batch-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .download-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+    <div class="header">
+        <h1>🧪 QR Risk Radar テスト用QRコード生成器</h1>
+        <p>あらゆる脅威パターンのQRコードを生成してテストできます</p>
+    </div>
+
+    <div class="control-panel">
+        <h3>📋 バッチ操作</h3>
+        <div class="batch-controls">
+            <button class="generate-btn" onclick="generateAllQRCodes()">🔄 全QRコード生成</button>
+            <button class="generate-btn" onclick="downloadAllQRCodes()">📥 全QRコード一括ダウンロード</button>
+            <button class="generate-btn" onclick="clearAllQRCodes()">🗑️ 全QRコードクリア</button>
+        </div>
+        <div class="download-section">
+            <h4>📁 ダウンロード形式</h4>
+            <label><input type="radio" name="downloadFormat" value="png" checked> PNG (推奨)</label>
+            <label><input type="radio" name="downloadFormat" value="svg"> SVG</label>
+            <label><input type="radio" name="downloadFormat" value="pdf"> PDF</label>
+        </div>
+    </div>
+
+    <!-- フィッシング攻撃テスト -->
+    <div class="test-category">
+        <h2 class="category-title">🎯 フィッシング攻撃テスト</h2>
+        
+        <h3>ホモグラフ攻撃</h3>
+        <div class="test-grid">
+            <div class="test-item">
+                <h4>キリル文字Amazon <span class="risk-badge risk-high">High</span></h4>
+                <div class="test-url">https://аmazon.com/login</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-amazon-cyrillic"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-amazon-cyrillic', 'https://аmazon.com/login')">QRコード生成</button>
+            </div>
+            <div class="test-item">
+                <h4>ギリシャ文字Google <span class="risk-badge risk-high">High</span></h4>
+                <div class="test-url">https://gοοgle.com/search</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-google-greek"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-google-greek', 'https://gοοgle.com/search')">QRコード生成</button>
+            </div>
+        </div>
+
+        <h3>タイポスクワッティング</h3>
+        <div class="test-grid">
+            <div class="test-item">
+                <h4>G00gle <span class="risk-badge risk-high">High</span></h4>
+                <div class="test-url">https://g00gle.com/search</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-g00gle"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-g00gle', 'https://g00gle.com/search')">QRコード生成</button>
+            </div>
+            <div class="test-item">
+                <h4>Fac3book <span class="risk-badge risk-high">High</span></h4>
+                <div class="test-url">https://fac3book.com/login</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-fac3book"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-fac3book', 'https://fac3book.com/login')">QRコード生成</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 技術的脅威テスト -->
+    <div class="test-category">
+        <h2 class="category-title">⚠️ 技術的脅威テスト</h2>
+        
+        <div class="test-grid">
+            <div class="test-item">
+                <h4>危険なJavaScriptスキーム <span class="risk-badge risk-high">High</span></h4>
+                <div class="test-url">javascript:alert('XSS Test')</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-javascript"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-javascript', 'javascript:alert(\'XSS Test\')')">QRコード生成</button>
+            </div>
+            <div class="test-item">
+                <h4>IPアドレス直接指定 <span class="risk-badge risk-medium">Medium</span></h4>
+                <div class="test-url">http://192.168.1.1/admin</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-ip-address"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-ip-address', 'http://192.168.1.1/admin')">QRコード生成</button>
+            </div>
+            <div class="test-item">
+                <h4>Data URI攻撃 <span class="risk-badge risk-high">High</span></h4>
+                <div class="test-url">data:text/html,&lt;script&gt;alert('XSS')&lt;/script&gt;</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-data-uri"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-data-uri', 'data:text/html,<script>alert(\'XSS\')</script>')">QRコード生成</button>
+            </div>
+            <div class="test-item">
+                <h4>実行ファイルダウンロード <span class="risk-badge risk-high">High</span></h4>
+                <div class="test-url">https://download.com/malware.exe</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-malware"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-malware', 'https://download.com/malware.exe')">QRコード生成</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 難読化・隠蔽テスト -->
+    <div class="test-category">
+        <h2 class="category-title">🫥 難読化・隠蔽テスト</h2>
+        
+        <div class="test-grid">
+            <div class="test-item">
+                <h4>短縮URL <span class="risk-badge risk-medium">Medium</span></h4>
+                <div class="test-url">https://bit.ly/3xY9Abc</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-shorturl"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-shorturl', 'https://bit.ly/3xY9Abc')">QRコード生成</button>
+            </div>
+            <div class="test-item">
+                <h4>Base64難読化 <span class="risk-badge risk-medium">Medium</span></h4>
+                <div class="test-url">https://example.com/path?data=aHR0cDovL2V2aWwuY29tL21hbHdhcmUuZXhl</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-base64"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-base64', 'https://example.com/path?data=aHR0cDovL2V2aWwuY29tL21hbHdhcmUuZXhl')">QRコード生成</button>
+            </div>
+            <div class="test-item">
+                <h4>オープンリダイレクト <span class="risk-badge risk-medium">Medium</span></h4>
+                <div class="test-url">https://example.com/redirect?url=http://evil.com</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-redirect"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-redirect', 'https://example.com/redirect?url=http://evil.com')">QRコード生成</button>
+            </div>
+            <div class="test-item">
+                <h4>過剰Hexエンコード <span class="risk-badge risk-low">Low</span></h4>
+                <div class="test-url">https://example.com/%65%78%65%63%75%74%65%2E%65%78%65</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-hex"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-hex', 'https://example.com/%65%78%65%63%75%74%65%2E%65%78%65')">QRコード生成</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 複合攻撃テスト -->
+    <div class="test-category">
+        <h2 class="category-title">💥 複合攻撃テスト</h2>
+        
+        <div class="test-grid">
+            <div class="test-item">
+                <h4>超高リスク複合攻撃 <span class="risk-badge risk-high">High</span></h4>
+                <div class="test-url">javascript:window.location='http://192.168.1.1:8080/malware.exe'</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-combo-high"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-combo-high', 'javascript:window.location=\'http://192.168.1.1:8080/malware.exe\'')">QRコード生成</button>
+            </div>
+            <div class="test-item">
+                <h4>フィッシング複合 <span class="risk-badge risk-high">High</span></h4>
+                <div class="test-url">http://аmazon-security.tk/login?redirect=http://evil.com</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-combo-phish"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-combo-phish', 'http://аmazon-security.tk/login?redirect=http://evil.com')">QRコード生成</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 正常URLテスト -->
+    <div class="test-category">
+        <h2 class="category-title">✅ 正常URLテスト（偽陽性チェック）</h2>
+        
+        <div class="test-grid">
+            <div class="test-item">
+                <h4>完全に安全 <span class="risk-badge risk-low">Safe</span></h4>
+                <div class="test-url">https://www.google.com/</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-safe"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-safe', 'https://www.google.com/')">QRコード生成</button>
+            </div>
+            <div class="test-item">
+                <h4>HTTP使用（軽微な警告） <span class="risk-badge risk-medium">Medium</span></h4>
+                <div class="test-url">http://httpbin.org/get</div>
+                <div class="qr-container">
+                    <div class="qr-code" id="qr-http-warn"></div>
+                </div>
+                <button class="generate-btn" onclick="generateQR('qr-http-warn', 'http://httpbin.org/get')">QRコード生成</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // QRコード生成関数
+        function generateQR(containerId, text) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = ''; // クリア
+            
+            QRCode.toCanvas(text, {
+                width: 200,
+                height: 200,
+                margin: 2,
+                color: {
+                    dark: '#000000',
+                    light: '#FFFFFF'
+                }
+            }, function (error, canvas) {
+                if (error) {
+                    container.innerHTML = '<p style="color: red;">QRコード生成エラー</p>';
+                    console.error(error);
+                } else {
+                    container.appendChild(canvas);
+                }
+            });
+        }
+
+        // 全QRコード生成
+        function generateAllQRCodes() {
+            const testCases = [
+                {id: 'qr-amazon-cyrillic', url: 'https://аmazon.com/login'},
+                {id: 'qr-google-greek', url: 'https://gοοgle.com/search'},
+                {id: 'qr-g00gle', url: 'https://g00gle.com/search'},
+                {id: 'qr-fac3book', url: 'https://fac3book.com/login'},
+                {id: 'qr-javascript', url: 'javascript:alert(\'XSS Test\')'},
+                {id: 'qr-ip-address', url: 'http://192.168.1.1/admin'},
+                {id: 'qr-data-uri', url: 'data:text/html,<script>alert(\'XSS\')</script>'},
+                {id: 'qr-malware', url: 'https://download.com/malware.exe'},
+                {id: 'qr-shorturl', url: 'https://bit.ly/3xY9Abc'},
+                {id: 'qr-base64', url: 'https://example.com/path?data=aHR0cDovL2V2aWwuY29tL21hbHdhcmUuZXhl'},
+                {id: 'qr-redirect', url: 'https://example.com/redirect?url=http://evil.com'},
+                {id: 'qr-hex', url: 'https://example.com/%65%78%65%63%75%74%65%2E%65%78%65'},
+                {id: 'qr-combo-high', url: 'javascript:window.location=\'http://192.168.1.1:8080/malware.exe\''},
+                {id: 'qr-combo-phish', url: 'http://аmazon-security.tk/login?redirect=http://evil.com'},
+                {id: 'qr-safe', url: 'https://www.google.com/'},
+                {id: 'qr-http-warn', url: 'http://httpbin.org/get'}
+            ];
+
+            testCases.forEach((testCase, index) => {
+                setTimeout(() => {
+                    generateQR(testCase.id, testCase.url);
+                }, index * 100); // 100ms間隔で生成
+            });
+        }
+
+        // 全QRコードクリア
+        function clearAllQRCodes() {
+            const qrContainers = document.querySelectorAll('.qr-code');
+            qrContainers.forEach(container => {
+                container.innerHTML = '';
+            });
+        }
+
+        // QRコード一括ダウンロード
+        function downloadAllQRCodes() {
+            const qrContainers = document.querySelectorAll('.qr-code');
+            const format = document.querySelector('input[name="downloadFormat"]:checked').value;
+            
+            qrContainers.forEach((container, index) => {
+                const canvas = container.querySelector('canvas');
+                if (canvas) {
+                    const link = document.createElement('a');
+                    link.download = `qr-test-${index + 1}.${format}`;
+                    link.href = canvas.toDataURL(`image/${format}`);
+                    link.click();
+                }
+            });
+        }
+
+        // ページ読み込み時にサンプルを自動生成
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                generateQR('qr-amazon-cyrillic', 'https://аmazon.com/login');
+                generateQR('qr-javascript', 'javascript:alert(\'XSS Test\')');
+                generateQR('qr-safe', 'https://www.google.com/');
+            }, 500);
+        });
+    </script>
+</body>
+</html>
