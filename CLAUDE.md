@@ -1,64 +1,93 @@
 # CLAUDE.md
 
-このファイルは、このリポジトリでコードを扱う際のClaude Code (claude.ai/code) 向けのガイダンスを提供します。
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## プロジェクト概要
+## Project Overview
 
-QRリスクレーダーは、QRコードとURLのフィッシングパターンを分析するクライアントサイドセキュリティツールです。「生成AIで作るセキュリティツール100」プロジェクトの一部です。
+QR Risk Radar is a client-side security tool that analyzes QR codes and URLs for phishing patterns. Part of the "100 Security Tools with Generative AI" project (Day 074).
 
-**重要**: これは防御的なセキュリティツールです。すべての処理はクライアントサイドで行われ、サーバー通信は発生しません。
+**Important**: This is a defensive security tool. All processing occurs client-side with no server communication.
 
-## アーキテクチャ
+## Architecture
 
-- **純粋なクライアントサイドアプリケーション**: バックエンドなし、ビルドプロセスなし
-- **静的HTML/CSS/JS**: 任意の静的ホスティング（GitHub Pages、file://）から提供可能
-- **外部依存関係**: CDN経由で読み込み
-  - QRスキャナーライブラリ: unpkgの `qr-scanner@1.4.2`
-  - QRコード生成: app.js内にインライン化（非推奨機能）
+- **Pure client-side application**: No backend, no build process
+- **Static HTML/CSS/JS**: Can be served from any static hosting (GitHub Pages, file://)
+- **External dependencies** (CDN loaded):
+  - QR scanner library: `qr-scanner@1.4.2` from unpkg
+  - QR code generation: Inlined QRCode.js library in app.js (lines 1-12)
 
-## 主要ファイル
+### Fallback Mechanism
+The scanner uses a dual-engine approach:
+1. Primary: `qr-scanner` Web Worker for decoding
+2. Fallback: Browser's native `BarcodeDetector` API (when Worker fails due to CSP/browser restrictions)
 
-- **index.html**: QRスキャン用のカメラ/ファイル入力を持つメインUI（日本語化済み）
-- **app.js**: ヒューリスティックルールによるコアリスク検出ロジック（日本語化済み）
-- **style.css**: スタイリング
-- **test.html**: QRコードライブラリ検証用の簡単なテストページ
+## Key Files
 
-## リスク検出ルール
+- **index.html**: Main UI with camera/file input for QR scanning (Japanese UI)
+- **app.js**: Core risk detection logic with heuristic rules
+- **style.css**: Styling with responsive design
+- **test/**: Testing resources including QR generators and test cases
 
-アプリはヒューリスティックスコアリングを使用（app.js:107-206の`RULES`配列で定義）:
-- HTTPスキーム (+2)
-- javascript:などの危険なスキーム (+3)
-- IPアドレスホスト (+2)
-- URL短縮サービス (+2)
-- オープンリダイレクトパラメーター (+2)
-- Punycodeドメイン (+2)
-- その他のトラッキング、長さ、ポートなどのパターン
+## Risk Detection System
 
-リスクレベル: 低（0-2）、中（3-5）、高（6+）
+### Rules Engine (app.js:165-370+)
 
-## 開発コマンド
+The `RULES` array contains heuristic detection rules. Each rule has:
+- `id`: Unique identifier
+- `re` or `custom`: RegExp pattern or custom function
+- `score`: Risk points (number or function)
+- `msg`: Japanese description
+- `category`: Classification (security, obfuscation, phishing, malware, etc.)
+
+### Scoring Thresholds
+- **Low**: 0-2 points
+- **Medium**: 3-5 points
+- **High**: 6+ points
+
+### Key Detection Categories
+- Dangerous schemes (javascript:, data:, file:) +3
+- HTTP scheme (unencrypted) +2
+- IP address hosts +2
+- URL shorteners +2
+- Open redirect parameters +2
+- Punycode domains +2
+- Unicode spoofing (homograph attacks) +3
+- Executable file downloads +3
+- Excessive tracking parameters +1
+
+## Development Commands
 
 ```bash
-# 任意の静的サーバーでローカル提供
+# Serve locally with any static server
 python3 -m http.server 8000
-# または
+# or
 npx http-server
 
-# GitHub Pagesにデプロイ
+# Deploy to GitHub Pages
 git add .
-git commit -m "QRリスクレーダーを更新"
+git commit -m "Update QR Risk Radar"
 git push origin main
 ```
 
-## テスト
+## Testing
 
-QRコードライブラリの読み込み確認: ブラウザーでtest.htmlを開く
-メインアプリのテスト: index.htmlを開いてサンプルURLやQRコード画像でテスト
+- **QR library test**: Open `test/test-qr-generator.html` in browser
+- **Main app test**: Open `index.html` and test with sample URLs or QR images
+- **Test cases**: See `test/TEST_CASES.md` for 200+ comprehensive test cases
+- **QR samples**: Pre-generated test QR codes in `test/qr/` directory
 
-## 主要機能
+## Key Features
 
-- **タブ式UI**: 手動入力とQRスキャナーを分離
-- **ホワイトリスト機能**: 信頼できるドメインの登録（localStorageで永続化）
-- **日本語対応**: UI、メッセージ、エラー表示すべて日本語化済み
-- **レスポンシブデザイン**: モバイル対応
-- **視覚的フィードバック**: ローディング表示、成功アニメーション
+- **Tabbed UI**: Separates manual input and QR scanner modes
+- **Whitelist**: Trusted domain registration (localStorage persisted)
+- **Base64 decoding**: Automatic detection and decoding of encoded payloads
+- **Advanced obfuscation detection**: Hex encoding, double URL encoding, Unicode escapes
+- **Japanese UI**: All messages and errors in Japanese
+
+## Security Considerations
+
+When modifying this codebase:
+- All input must be sanitized using `escapeHtml()` function (app.js:101-105)
+- DOM manipulation uses safe methods (textContent, createElement) instead of innerHTML
+- Domain validation uses `isValidDomain()` before storage
+- No external API calls - everything runs client-side

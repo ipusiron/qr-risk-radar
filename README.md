@@ -1,11 +1,39 @@
 <!--
 ---
-title: QR Risk Radar
-category: security-tool
+id: day074
+slug: qr-risk-radar
+
+title: "QR Risk Radar"
+
+subtitle_ja: "QRコードリスク分析ツール"
+subtitle_en: "QR Code Risk Analysis Tool"
+
+description_ja: "QRコードやURLに潜むフィッシングリスクを検出するクライアントサイドセキュリティツール。カメラや画像からQRコードを読み取り、20種類以上のヒューリスティックルールで危険なパターンを分析します。すべての処理はブラウザー内で完結し、データがサーバーへ送信されることはありません。"
+description_en: "A client-side security tool that detects phishing risks in QR codes and URLs. Decodes QR codes from camera or images and analyzes dangerous patterns using 20+ heuristic rules. All processing occurs offline in the browser with no server communication."
+
+category_ja:
+  - QRコード
+  - フィッシング対策
+category_en:
+  - QR Code
+  - Anti-Phishing
+
 difficulty: 2
-description: A lightweight client-side tool to assess the risk of QR codes and URLs/text. It decodes QR codes from camera or images and analyses the extracted content for potential phishing patterns. All processing occurs offline in the browser.
-tags: [security, qr-code, phishing, risk-analysis, javascript, education]
-demo: https://ipusiron.github.io/qr-risk-radar/
+
+tags:
+  - security
+  - qr-code
+  - phishing
+  - quishing
+  - risk-analysis
+  - javascript
+  - client-side
+  - education
+
+repo_url: "https://github.com/ipusiron/qr-risk-radar"
+demo_url: "https://ipusiron.github.io/qr-risk-radar/"
+
+hub: true
 ---
 -->
 
@@ -21,10 +49,10 @@ demo: https://ipusiron.github.io/qr-risk-radar/
 
 **QR Risk Radar** は、QRコードやプレーンテキストに潜むリスクを検出するための軽量なクライアントサイドツールです。
 
-ウェブカメラまたはアップロードした画像からQRコードを読み取り、抽出されたテキストやURLにフィッシングの兆候や悪意のあるパターンがないか検査します。
+Webカメラまたはアップロードした画像からQRコードを読み取り、抽出されたテキストやURLにフィッシングの兆候や悪意のあるパターンがないか検査します。
 また、URLや任意の文字列を直接貼り付けて解析することもできます。
 
-すべての処理はブラウザーー内で完結し、データがサーバーへ送信されることはありません。
+すべての処理はブラウザー内で完結し、データがサーバーへ送信されることはありません。
 
 ---
 
@@ -32,7 +60,7 @@ demo: https://ipusiron.github.io/qr-risk-radar/
 
 👉 **[https://ipusiron.github.io/qr-risk-radar/](https://ipusiron.github.io/qr-risk-radar/)**
 
-ブラウザーーで直接お試しいただけます。
+ブラウザーで直接お試しいただけます。
 
 ---
 
@@ -97,9 +125,9 @@ QRコードは非接触で簡単に情報を渡せる利便性から普及しま
 
 - **QRコードのデコード** – カメラまたはアップロードされた画像からQRコードを読み取り、外部サービスに接続することなくクライアントサイドで埋め込まれたテキストを抽出します。アップロードした場合でも元画像のプレビューとファイル情報を表示したまま解析できます。
 - **手動入力の解析** – 入力ボックスにURLやテキストを貼り付けると、不審なパターンがないかチェックします。
-- **リスク検出ルール** – 暗号化されていないHTTPリンクや危険なスキーム（`javascript:`, `data:` など）、IPアドレスのホスト、標準外のポート、URL短縮サービス、オープンリダイレクトパラメーターー、追跡パラメーターーの過剰使用、Punycodeドメイン、誤解を招くサブドメイン、過度に長いクエリやフラグメントといった問題を検出するヒューリスティックを備えています。
+- **リスク検出ルール** – 暗号化されていないHTTPリンクや危険なスキーム（`javascript:`, `data:` など）、IPアドレスのホスト、標準外のポート、URL短縮サービス、オープンリダイレクトパラメーター、追跡パラメーターの過剰使用、Punycodeドメイン、誤解を招くサブドメイン、過度に長いクエリやフラグメントといった問題を検出するヒューリスティックを備えています。
 - **リスクレベル分類** – ルールに一致するごとにスコアを加算し、合計点に応じて Low／Medium／High の3段階に分類します。検出内容も併記されます。
-- **オフライン動作** – 解析とデコードのすべてがブラウザーー内で実行され、ネットワーク通信は発生しません。
+- **オフライン動作** – 解析とデコードのすべてがブラウザー内で実行され、ネットワーク通信は発生しません。
 - **堅牢なスキャンエンジン** – まず `qr-scanner` のワーカーでデコードを試行し、ブラウザーやCSPの制約でワーカーが読み込めない場合は自動で `BarcodeDetector` API にフォールバックします（対応ブラウザー限定）。そのため、ローカルでの検証やネットワーク遮断環境でも安定して動作します。
 - **シンプルなインターフェース** – カメラの開始・停止、画像ファイルの選択、手動解析を行うための明快な操作パネルを備えています。結果は色分けされたバッジで表示され、一目で判別できます。
 
@@ -124,7 +152,7 @@ QRコードは非接触で簡単に情報を渡せる利便性から普及しま
 
 1. **カメラでQRコードを読み取る**  
    - 上部の「**QRスキャナー**」タブをクリックします。  
-   - **カメラ開始** ボタンをクリックし、ブラウザーーからカメラへのアクセス許可を求められたら許可します。  
+   - **カメラ開始** ボタンをクリックし、ブラウザーからカメラへのアクセス許可を求められたら許可します。  
    - QRコードをカメラにかざすと、自動的にデコードされ、内容と解析結果が表示されます。読み取り直後はカメラプレビューが自動で停止し、結果パネルと生成されたQRプレビューに切り替わります。  
    - **カメラ停止** ボタンでスキャンを終了できます。
 
@@ -211,7 +239,7 @@ javascript:window.location='http://malicious.com'
 #### 問題作成者として
 
 1. **QRコード解析問題の設計**
-   - 複数のQRコードを提示し、その中から「最も危険なもの」を特定させる
+   - 複数のQRコードを提示し、その中から「もっとも危険なもの」を特定させる
    - Base64エンコードされたペイロードを含むQRコードを作成
    - 複数段階のリダイレクトを含むURL連鎖の問題を設計
 
@@ -460,7 +488,7 @@ WeirdString Inspector結果:
 
 **ステップ2: 問題のあるURLをコピー**
 1. QR Risk Radarの分析結果画面で該当URLを選択・コピー
-2. ブラウザーーで新しいタブを開く
+2. ブラウザーで新しいタブを開く
 
 **ステップ3: WeirdString Inspectorでの精密分析**
 1. [WeirdString Inspector](https://ipusiron.github.io/weirdstring-inspector/)を開く
