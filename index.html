@@ -12,44 +12,45 @@
   </head>
   <body>
     <header class="site-header">
-      <h1>QR Risk Radar</h1>
-      <p class="tagline">URLやQRコードの中身を部品に分け、フィッシングでよく見る兆候を数えます</p>
+      <div class="header-text">
+        <h1>QR Risk Radar</h1>
+        <p class="tagline" data-i18n="tagline">URLやQRコードの中身を部品に分け、フィッシングでよく見る兆候を数えます</p>
+      </div>
+      <button type="button" id="langBtn" class="lang-btn" data-i18n="langButton" data-i18n-attr="aria-label:langLabel" aria-label="英語に切り替える">EN</button>
     </header>
     <main>
-      <noscript><p class="notice">このツールはJavaScriptで動きます。ブラウザーの設定でJavaScriptを有効にしてください。</p></noscript>
-      <p class="notice">
-        判定はURLの形だけを見た目安です。<strong>「目立つ兆候なし」は安全という意味ではありません。</strong>
-        URLを開いたり、外部に送ったりはしません（すべてこのブラウザーの中で動きます）。
-      </p>
+      <noscript><p class="notice">このツールはJavaScriptで動きます。ブラウザーの設定でJavaScriptを有効にしてください。 / This tool needs JavaScript. Please enable it in your browser.</p></noscript>
+      <p class="notice"><span data-i18n="notice1">判定はURLの形だけを見た目安です。</span><strong data-i18n="notice2">「目立つ兆候なし」は安全という意味ではありません。</strong><span data-i18n="notice3">URLを開いたり、外部に送ったりはしません（すべてこのブラウザーの中で動きます）。</span></p>
 
-      <div class="tabs" role="tablist" aria-label="入力のしかた">
-        <button type="button" class="tab" role="tab" id="tab-manual" aria-controls="panel-manual" aria-selected="true">URL・文字を入力</button>
-        <button type="button" class="tab" role="tab" id="tab-qr" aria-controls="panel-qr" aria-selected="false" tabindex="-1">QRコードを読む</button>
+      <div class="tabs" role="tablist" aria-label="入力のしかた" data-i18n-attr="aria-label:tablist">
+        <button type="button" class="tab" role="tab" id="tab-manual" aria-controls="panel-manual" aria-selected="true" data-i18n="tabManual">URL・文字を入力</button>
+        <button type="button" class="tab" role="tab" id="tab-qr" aria-controls="panel-qr" aria-selected="false" tabindex="-1" data-i18n="tabQr">QRコードを読む</button>
       </div>
 
       <section id="panel-manual" class="panel" role="tabpanel" aria-labelledby="tab-manual">
-        <label for="payload" class="field-label">調べるURLまたは文字</label>
+        <label for="payload" class="field-label" data-i18n="payloadLabel">調べるURLまたは文字</label>
         <textarea id="payload" rows="3" spellcheck="false" autocomplete="off" placeholder="https://example.com/login"></textarea>
         <div class="button-bar">
-          <button type="button" id="analyzeBtn" class="btn primary">調べる</button>
-          <button type="button" id="clearBtn" class="btn">消す</button>
+          <button type="button" id="analyzeBtn" class="btn primary" data-i18n="analyze">調べる</button>
+          <button type="button" id="clearBtn" class="btn" data-i18n="clear">消す</button>
         </div>
         <p id="manualStatus" class="status" role="status"></p>
       </section>
 
       <section id="panel-qr" class="panel" role="tabpanel" aria-labelledby="tab-qr" hidden>
-        <p class="hint">カメラで読むか、QRコードの写った画像を選んでください。画像はこのブラウザーの中で読むだけで、どこにも送りません。</p>
+        <p class="hint" data-i18n="qrHint">カメラで読むか、QRコードの写った画像を選んでください。画像はこのブラウザーの中で読むだけで、どこにも送りません。</p>
         <div class="button-bar">
-          <button type="button" id="startCameraBtn" class="btn primary">カメラで読む</button>
-          <button type="button" id="stopCameraBtn" class="btn" disabled>カメラを止める</button>
-          <label class="btn file-btn">画像を選ぶ<input type="file" id="fileInput" accept="image/*" /></label>
+          <button type="button" id="startCameraBtn" class="btn primary" data-i18n="startCamera">カメラで読む</button>
+          <button type="button" id="stopCameraBtn" class="btn" disabled data-i18n="stopCamera">カメラを止める</button>
+          <label class="btn file-btn"><span data-i18n="pickImage">画像を選ぶ</span><input type="file" id="fileInput" accept="image/*" /></label>
         </div>
+        <p id="dropZone" class="drop-zone" data-i18n="dropZone">画像をここにドロップするか、Ctrl+V（Macは⌘+V）で貼り付けても読めます。リンクをドロップすると、そのURLを判定します。</p>
         <p id="qrStatus" class="status" role="status"></p>
         <div id="cameraBox" class="camera-box" hidden>
           <video id="preview" playsinline muted></video>
         </div>
         <figure id="imageBox" class="image-box" hidden>
-          <img id="imagePreview" alt="選んだ画像" />
+          <img id="imagePreview" alt="選んだ画像" data-i18n-attr="alt:imageAlt" />
           <figcaption id="imageName"></figcaption>
         </figure>
       </section>
@@ -57,31 +58,31 @@
       <section id="result" class="result" aria-live="polite" hidden></section>
 
       <section class="samples-section">
-        <h2 class="section-title">サンプルで試す</h2>
-        <p class="hint">押すと入力欄に入り、そのまま判定します。印は、このツールの判定です。</p>
+        <h2 class="section-title" data-i18n="samplesTitle">サンプルで試す</h2>
+        <p class="hint" data-i18n="samplesHint">押すと入力欄に入り、そのまま判定します。印は、このツールの判定です。</p>
         <div id="samples" class="samples"></div>
       </section>
 
       <section class="trust">
-        <h2 class="section-title">自分で信頼するドメイン</h2>
-        <p class="hint">社内のサイトなど、自分で確かめた登録ドメインを入れておくと「信頼済み」と表示します。このブラウザーの中だけに保存します。</p>
+        <h2 class="section-title" data-i18n="trustTitle">自分で信頼するドメイン</h2>
+        <p class="hint" data-i18n="trustHint">社内のサイトなど、自分で確かめた登録ドメインを入れておくと「信頼済み」と表示します。このブラウザーの中だけに保存します。</p>
         <div class="trust-controls">
-          <label for="whitelistInput" class="visually-hidden">信頼するドメイン</label>
+          <label for="whitelistInput" class="visually-hidden" data-i18n="trustLabel">信頼するドメイン</label>
           <input type="text" id="whitelistInput" placeholder="example.co.jp" spellcheck="false" autocomplete="off" />
-          <button type="button" id="addWhitelistBtn" class="btn">追加</button>
+          <button type="button" id="addWhitelistBtn" class="btn" data-i18n="trustAdd">追加</button>
         </div>
         <p id="trustStatus" class="status" role="status"></p>
         <ul id="whitelistItems" class="trust-list"></ul>
       </section>
 
       <section class="accuracy">
-        <h2 class="section-title">この判定の確かさ（実測）</h2>
+        <h2 class="section-title" data-i18n="accuracyTitle">この判定の確かさ（実測）</h2>
         <p class="hint" id="accuracyLead"></p>
-        <h3 class="table-title">フィッシングURLを見抜けた割合</h3>
+        <h3 class="table-title" data-i18n="accuracyPhish">フィッシングURLを見抜けた割合</h3>
         <div class="table-wrap"><table id="accuracyPhish" class="accuracy-table"></table></div>
-        <h3 class="table-title">普通のサイトを誤って疑った割合</h3>
+        <h3 class="table-title" data-i18n="accuracyBenign">普通のサイトを誤って疑った割合</h3>
         <div class="table-wrap"><table id="accuracyBenign" class="accuracy-table"></table></div>
-        <p class="hint">判定に使わないもの: ページの中身、ドメインを取った時期、どこかに通報済みかどうか。URLの形に兆候が出ない偽サイト（乗っ取られた普通のサイトなど）は見抜けません。</p>
+        <p class="hint" data-i18n="accuracyLimits">判定に使わないもの: ページの中身、ドメインを取った時期、どこかに通報済みかどうか。URLの形に兆候が出ない偽サイト（乗っ取られた普通のサイトなど）は見抜けません。</p>
       </section>
     </main>
     <footer class="site-footer">
@@ -90,7 +91,10 @@
     <script src="js/psl-data.js"></script>
     <script src="js/model.js"></script>
     <script src="js/url-core.js"></script>
+    <script src="js/payload-core.js"></script>
     <script src="js/messages.js"></script>
+    <script src="js/messages-en.js"></script>
+    <script src="js/i18n.js"></script>
     <script src="js/samples.js"></script>
     <script src="vendor/qr-scanner/qr-scanner.umd.min.js"></script>
     <script src="js/qr-worker.js"></script>

@@ -75,6 +75,26 @@ code { font-family: ui-monospace, "SFMono-Regular", Consolas, "BIZ UDGothic", mo
 }
 .site-header h1 { margin: 0; font-size: 1.9rem; }
 .tagline { margin: 0.4rem 0 0; }
+.lang-btn {
+  min-height: 44px;
+  min-width: 44px;
+  margin-top: 0.6rem;
+  padding: 0.3rem 0.9rem;
+  border: 1px solid var(--header-text);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--header-text);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.lang-btn:focus-visible { outline-color: var(--header-text); }
+/* 広い画面では題名を中央に、言語のボタンを右端に置く */
+@media (min-width: 769px) {
+  .site-header { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; }
+  .header-text { grid-column: 2; }
+  .lang-btn { grid-column: 3; justify-self: end; margin-top: 0; }
+}
 
 main { max-width: 760px; margin: 0 auto; padding: 1.5rem 1rem 2rem; }
 
@@ -205,6 +225,32 @@ textarea { font-family: ui-monospace, Consolas, monospace; resize: vertical; }
 .qr-out { margin-top: 0.75rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
 .qr-out img { background: #fff; border: 1px solid var(--border); border-radius: 6px; image-rendering: pixelated; }
 .qr-out .hint { flex-basis: 100%; }
+
+/* QR を読む（貼り付け・ドロップ） */
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  margin: 0.75rem 0;
+  text-align: center;
+  color: var(--muted);
+}
+body.dragging .drop-zone { border-color: var(--accent); background: var(--low-bg); color: var(--low-fg); }
+body.dragging main { outline: 3px dashed var(--accent); outline-offset: 4px; }
+
+/* 中身の種類 */
+.payload h3 { font-size: 1.05rem; margin: 1rem 0 0.4rem; }
+.payload h4 { font-size: 0.95rem; margin: 0.8rem 0 0.3rem; }
+.notes {
+  margin: 0.6rem 0;
+  padding: 0.5rem 0.75rem 0.5rem 1.6rem;
+  border-radius: 6px;
+  background: var(--medium-bg);
+  color: var(--medium-fg);
+}
+.notes li { margin: 0.2rem 0; }
+.payload-urls { list-style: none; padding: 0; margin: 0; }
+.payload-urls li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; padding: 0.35rem 0; border-top: 1px solid var(--border); }
 
 /* QR を読む */
 .camera-box { position: relative; margin: 0.75rem 0; border-radius: 8px; overflow: hidden; background: #000; }

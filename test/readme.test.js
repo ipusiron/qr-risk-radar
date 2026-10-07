@@ -9,9 +9,12 @@ const M = globalThis.QRModel;
 const root = (f) => new URL("../" + f, import.meta.url);
 const read = (f) => fs.readFileSync(root(f), "utf8");
 vm.runInThisContext(read("js/messages.js"));
+vm.runInThisContext(read("js/messages-en.js"));
 vm.runInThisContext(read("js/samples.js"));
-const T = globalThis.QRText;
+const T = globalThis.QRTexts.ja;
+const EN = globalThis.QRTexts.en;
 const README = read("README.md");
+const README_EN = read("README.en.md");
 const SCORING = read("SCORING.md");
 const DOCS = { "README.md": README, "SCORING.md": SCORING, "SECURITY.md": read("SECURITY.md") };
 
@@ -120,8 +123,12 @@ test("README の構成: 前半と後半の見出しの順、画像の参照", ()
   }
 });
 
-test("ディレクトリー構造: リポジトリーの全ファイルが載り、全行に説明がある", () => {
-  const block = README.split("```text\nqr-risk-radar/\n")[1].split("```")[0].trimEnd().split("\n");
+test("ディレクトリー構造（日英）: リポジトリーの全ファイルが載り、全行に説明がある", () => {
+  for (const md of [README, README_EN]) checkTree(md);
+});
+
+function checkTree(md) {
+  const block = md.split("```text\nqr-risk-radar/\n")[1].split("```")[0].trimEnd().split("\n");
   const listed = [], stack = [];
   for (const line of block) {
     const m = line.match(/^((?:│   |    )*)(?:├── |└── )(\S+)\s+# \S/);
@@ -142,7 +149,7 @@ test("ディレクトリー構造: リポジトリーの全ファイルが載り
   });
   const actual = walk("").filter((f) => !f.startsWith("tools/corpus/")).sort();
   assert.deepEqual(listed.sort(), actual);
-});
+}
 
 test("表記: 日本語と英数字の間に空白を入れない。長音・ひらく語の決まり。強調は一節に2か所まで", () => {
   const JA = "[" + String.fromCodePoint(0x3041) + "-" + String.fromCodePoint(0x30ff) + String.fromCodePoint(0x4e00) + "-" + String.fromCodePoint(0x9fff) + "]";
@@ -166,4 +173,52 @@ test("表記: 日本語と英数字の間に空白を入れない。長音・ひ
   assert.ok(!/^- \*\*/m.test(README));
   // ATTACKS.md は以前からの読み物なので、長音・ひらく語の決まりだけを確かめる
   for (const line of read("ATTACKS.md").split("\n")) assert.ok(!banned.test(line), "ATTACKS.md: " + line);
+});
+
+// ---------- 英語版（README.en.md） ----------
+const judgeEn = (u) => {
+  const a = C.analyze(u), s = C.score(a);
+  const level = a.kind === "text" ? "text" : a.kind === "scheme" && s.level !== "high" ? "other" : s.level;
+  return EN.level[level] + (a.kind === "url" ? ` (${s.total} ${s.total === 1 ? "point" : "points"})` : "");
+};
+
+test("README.en.md の表（判定の確かさ・サンプル・QR コードの画像）が計算部と一致する", () => {
+  const rows = table(README_EN, "| Data | Count | Medium or more | High | Meaning |");
+  assert.deepEqual(rows, M.evaluation.map((e) => [e.id === "legit" ? "Official login pages" : EN.evaluation[e.id].name,
+    e.n.toLocaleString("en-US"), pct(e.medium), pct(e.high), EN.evaluation[e.id].kind === "phish" ? "Detected" : "Wrongly flagged"]));
+  const items = globalThis.QRSamples.flatMap((g) => g.items.map((s) => ({ ...s, groupEn: g.groupEn })));
+  assert.deepEqual(table(README_EN, "| Group | Sample | Content | Result |"), items.map((s) => [s.groupEn, s.titleEn, "`" + s.url + "`", judgeEn(s.url)]));
+  const qr = README_EN.split("### QR code images for testing the reader")[1];
+  const lists = [table(qr, "| File | Content | Result |"), table(qr.split("`test/qr/` also has")[1], "| File | Content | Result |")];
+  assert.deepEqual(lists[0].map((r) => unquote(r[0])), fs.readdirSync(root("samples/qr/")).sort().map((f) => "samples/qr/" + f));
+  for (const r of [...lists[0], ...lists[1]]) assert.equal(r[2], judgeEn(unquote(r[1])), r[1]);
+  for (const r of lists[1]) for (const ext of [".png", ".svg"]) assert.ok(fs.existsSync(root(unquote(r[0].split(", ")[0]).replace(/\.png$/, ext))), r[0]);
+  // 件数の記述
+  const miss = (100 - M.evaluation.find((e) => e.id === "jpcert").medium).toFixed(1);
+  for (const t of [`${miss}%`, `${Object.keys(M.stats).length} kinds of signs`, `${items.length} samples`, `${lists[0].length} images`,
+    `${C.BRANDS.length} brands in the list (${C.BRANDS.flatMap((b) => b.official).length} official registrable domains)`,
+    `A total of ${M.medium} points or more is "Medium" and ${M.high} or more is "High"`]) assert.ok(README_EN.includes(t), t);
+  assert.ok(README_EN.includes("https://" + String.fromCodePoint(0x430) + "pple.example/"));
+});
+
+test("README.en.md の構成: 日本語版と同じ見出しの並び（階層と絵文字）、画像、相互のリンク", () => {
+  const heads = (md) => [...md.matchAll(/^#{1,3} /gm)];
+  const ja = [...README.matchAll(/^(#{1,3}) (.+)$/gm)].map((m) => [m[1], m[2]]);
+  const en = [...README_EN.matchAll(/^(#{1,3}) (.+)$/gm)].map((m) => [m[1], m[2]]);
+  assert.equal(en.length, ja.length);
+  for (let i = 0; i < ja.length; i++) {
+    assert.equal(en[i][0], ja[i][0], `${ja[i][1]} / ${en[i][1]}`);
+    if (ja[i][0] === "##") assert.equal([...en[i][1]][0], [...ja[i][1]][0], `${ja[i][1]} / ${en[i][1]}`);
+    if (ja[i][1].startsWith("Q.")) assert.ok(en[i][1].startsWith("Q."), en[i][1]);
+  }
+  assert.ok(heads(README_EN).length > 20);
+  assert.ok(README_EN.startsWith("English · [日本語](README.md)\n"));
+  assert.ok(README.includes("\n[English](README.en.md) · 日本語\n"));
+  assert.ok(README_EN.includes("**Day074 - 100 Security Tools with Generative AI**"));
+  assert.equal((README_EN.match(/img\.shields\.io/g) || []).length, 5);
+  const images = [...README_EN.matchAll(/!\[[^\]]*\]\((assets\/en\/[^)]+)\)/g)].map((m) => m[1]);
+  const pngs = fs.readdirSync(root("assets/en/")).filter((f) => f.endsWith(".png")).map((f) => "assets/en/" + f);
+  assert.deepEqual([...new Set(images)].sort(), pngs.sort());
+  // README.md の画像の枚数と同じ
+  assert.equal(images.length, [...README.matchAll(/!\[[^\]]*\]\((assets\/[^)]+)\)/g)].length);
 });

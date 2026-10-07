@@ -48,9 +48,11 @@ hub: true
 
 **Day074 - 生成AIで作るセキュリティツール100**
 
+[English](README.en.md) · 日本語
+
 **QR Risk Radar**は、URLやQRコードの中身を部品に分け、フィッシングでよく見る兆候を数えるWebツールです。
 
-カメラや画像からQRコードを読み、持ち主を決める部分（登録ドメイン）をはっきり示したうえで、兆候ごとの点数を足して「高」「中」「目立つ兆候なし」を出します。点数と境目は実際のフィッシングURLと日本でよく開かれるサイトのデータで決め、その確かさを画面に載せています。すべての処理はブラウザーの中で完結し、URLを開いたり外部に送ったりはしません。
+カメラや画像からQRコードを読み、持ち主を決める部分（登録ドメイン）をはっきり示したうえで、兆候ごとの点数を足して「高」「中」「目立つ兆候なし」を出します。Wi-Fiの設定・SMS・連絡先・2段階認証の鍵など、URL以外の中身も項目に分けて注意点を示します。点数と境目は実際のフィッシングURLと日本でよく開かれるサイトのデータで決め、その確かさを画面に載せています。すべての処理はブラウザーの中で完結し、URLを開いたり外部に送ったりはしません。
 
 ---
 
@@ -79,6 +81,9 @@ hub: true
 >![ダークモード。無作為な文字列のドメイン（.top）で、判定は高（4点）](assets/screenshot5.png)
 >*ダークモード。無作為な文字列のドメイン（.top）で、判定は高（4点）*
 
+>![中身の種類。本文にURLがあるSMSを、番号・本文・注意・中のURLとその判定に分けた状態](assets/screenshot6.png)
+>*中身の種類。本文にURLがあるSMSを、番号・本文・注意・中のURLとその判定に分けた状態*
+
 ---
 
 ## ✨ 主な機能
@@ -87,11 +92,14 @@ hub: true
 - URLの部品：スキーム・@より前・ホスト・表示用の文字（国際化ドメイン名）・公開接尾辞とその区分・サブドメイン・ポート・パス・クエリ・フラグメントを表にする
 - 兆候と点数：26種類の兆候を探し、兆候ごとの点数と説明を並べる。合計が3点以上で「中」、4点以上で「高」。`javascript:`・`data:`などは点数に関係なく「高」
 - 隠れた行き先：クエリに埋め込まれたURLや、Base64で書いたURL・メールアドレスを取り出して見せ、ボタン1つでその行き先も判定する
+- 中身の種類：Wi-Fiの設定・電話・SMS・メール・連絡先（vCard・MECARD）・位置・2段階認証の鍵・暗号資産の送金先・予定・アプリの起動を項目に分ける。暗号化なしのWi-Fi、有料の案内番号、2段階認証の秘密鍵などの注意点と、中に含まれるURLの判定を出す。パスワードと秘密鍵は伏せて表示し、ボタンで見せる
 - QRコードを読む：カメラ（スマートフォンでは背面のカメラ）か画像ファイルから読む。読めなかったときは前の結果を消して理由を示す
+- 貼り付けとドロップ：画像をCtrl+V（Macは⌘+V）で貼るか、ページにドロップするとQRコードとして読む。リンクをドロップするとそのURLを判定する
 - QRコードを作る：調べた中身をQRコードのPNGにする。訓練の資料や、読み取りの試験に使える
 - 判定の確かさ：学習に使っていないデータで測った「見抜けた割合」と「誤って疑った割合」を画面に載せる
 - 自分で信頼するドメイン：社内のサイトなど、自分で確かめた登録ドメインを登録すると「信頼済み」と出る。公開接尾辞（`co.jp`・`pages.dev`など）は登録できない
-- サンプル：手口ごとに18個。押すと入力欄に入り、そのまま判定する
+- サンプル：手口ごとに21個。押すと入力欄に入り、そのまま判定する
+- 日英対応：右上のボタンで画面の言語を切り替えられる（最初はブラウザーの言語に合わせる）
 
 ---
 
@@ -99,7 +107,7 @@ hub: true
 
 1. 「URL・文字を入力」タブに、調べるURLか文字を貼って「調べる」を押します（Ctrl+Enterでも動きます）
 2. 判定の印と点数、持ち主（登録ドメイン）、見つかった兆候を確かめます。「URLの部品を見る」を開くと、部品ごとの表が出ます
-3. QRコードは「QRコードを読む」タブで、「カメラで読む」か「画像を選ぶ」を使います。読み取った中身がそのまま判定されます
+3. QRコードは「QRコードを読む」タブで、「カメラで読む」か「画像を選ぶ」を使います。スクリーンショットはCtrl+V（Macは⌘+V）で貼っても、ページにドロップしても読めます。読み取った中身がそのまま判定されます
 4. 調べた中身のQRコードがほしいときは、結果の下の「この中身のQRコードを作る」を押し、「PNGで保存」で保存します
 
 「目立つ兆候なし」は、安全という意味ではありません。判定の結果だけで開くかどうかを決めず、送り主や公式のアプリ・ブックマークで確かめてください。
@@ -128,7 +136,7 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 
 ## 🧪 サンプル
 
-画面の「サンプルで試す」にある18個です。ドメインは例示用に予約された`.example`と`example.com`を使い、TLD・無料ホスティング・短縮URL・公式の例だけ実在の名前を使っています（ホスト名は架空です）。
+画面の「サンプルで試す」にある21個です。ドメインは例示用に予約された`.example`と`example.com`を使い、TLD・無料ホスティング・短縮URL・公式の例だけ実在の名前を使っています（ホスト名は架空です）。
 
 | 分類 | サンプル | 中身 | 判定 |
 |---|---|---|---|
@@ -147,7 +155,10 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 | 行き先を隠す | 二重の拡張子のファイル | `https://files.example/invoice.pdf.exe` | 目立つ兆候なし（1点） |
 | URLではないもの | javascript:スキーム | `javascript:alert('QR Risk Radar')` | 高 |
 | URLではないもの | data:スキーム | `data:text/html,<h1>QR Risk Radar</h1>` | 高 |
-| URLではないもの | Wi-Fiの設定 | `WIFI:T:WPA;S:Free-Cafe-WiFi;P:12345678;;` | URL以外 |
+| URLではないもの | 暗号化なしのWi-Fi | `WIFI:T:nopass;S:Free-Cafe-WiFi;;` | URL以外 |
+| URLではないもの | 2段階認証の鍵 | `otpauth://totp/Example:alice@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example` | URL以外 |
+| URLではないもの | 本文にURLがあるSMS | `SMSTO:+81-90-0000-0000:Your parcel could not be delivered. Reschedule: https://sagawa-redelivery.example/` | URL以外 |
+| URLではないもの | 有料番号とURLの連絡先 | `MECARD:N:Support,Center;TEL:0570-000-000;URL:https://support-center.example/;;` | URL以外 |
 | 本物（比べるため） | Amazonの公式のログイン | `https://www.amazon.co.jp/ap/signin` | 目立つ兆候なし（0点） |
 | 本物（比べるため） | 日本郵便の公式 | `https://www.post.japanpost.jp/` | 目立つ兆候なし（0点） |
 
@@ -155,7 +166,7 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 
 ### 読み取りの試験に使えるQRコードの画像
 
-`samples/qr/`の9枚は、上のサンプルを`tools/make-qr.mjs`でQRコードにしたものです（画面の「QRコードを作る」と同じ作り方）。
+`samples/qr/`の11枚は、上のサンプルを`tools/make-qr.mjs`でQRコードにしたものです（画面の「QRコードを作る」と同じ作り方）。
 
 | ファイル | 中身 | 判定 |
 |---|---|---|
@@ -166,8 +177,10 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 | `samples/qr/05_random.png` | `https://vzqxkwtr.top/jp/` | 高（4点） |
 | `samples/qr/06_shortener.png` | `https://bit.ly/3xY9Abc` | 目立つ兆候なし（1点） |
 | `samples/qr/07_javascript.png` | `javascript:alert('QR Risk Radar')` | 高 |
-| `samples/qr/08_wifi.png` | `WIFI:T:WPA;S:Free-Cafe-WiFi;P:12345678;;` | URL以外 |
+| `samples/qr/08_wifi.png` | `WIFI:T:nopass;S:Free-Cafe-WiFi;;` | URL以外 |
 | `samples/qr/09_official.png` | `https://www.amazon.co.jp/ap/signin` | 目立つ兆候なし（0点） |
+| `samples/qr/10_otp.png` | `otpauth://totp/Example:alice@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example` | URL以外 |
+| `samples/qr/11_sms.png` | `SMSTO:+81-90-0000-0000:Your parcel could not be delivered. Reschedule: https://sagawa-redelivery.example/` | URL以外 |
 
 `test/qr/`にも、以前から置いている5種類（PNGとSVG）があります。
 
@@ -189,7 +202,10 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 - 情報の授業：URLの構造（スキーム・ホスト・登録ドメイン・パス）を教える教材にする。「左から読むと騙される」「`@`の前は飾り」を、サンプルを押しながら生徒が自分で確かめられる
 - Webサイトの運営：自社が配るURL（キャンペーン用のドメイン・短縮URL・転送）が、受け取った人の目にどう映るかを点検する。正規のURLが「中」以上になるなら、ドメインの選び方や配り方を見直す材料になる
 - 印刷物・名刺の入稿前の確認：印刷するQRコードの画像を読み、中身が意図したURLか、余計な追跡の値が付いていないかを確かめる
-- Wi-Fiの設定のQRコード：カフェやイベント会場の掲示を読み、ネットワーク名と暗号方式を、つなぐ前に店の案内と見比べる
+- Wi-Fiの設定のQRコード：カフェやイベント会場の掲示を読み、ネットワーク名と暗号方式を、つなぐ前に店の案内と見比べる。暗号化なし・WEPなら注意が出る
+- 社内のヘルプデスク：利用者から届いたQRコードのスクリーンショット（2段階認証の設定・Wi-Fiの設定・連絡先など）を貼り付けて中身を確かめる。秘密鍵やパスワードは伏せて表示されるので、画面を共有しながらでも扱える
+- 請求・寄付の確認：暗号資産の送金先や、電話番号（0570など通話料のかかる番号・海外の番号）の入ったQRコードを、送金やかける前に、請求書や公式の案内と見比べる
+- 海外の利用者・留学生への案内：画面を英語に切り替えて、日本の偽サイトでよく見る形（えきねっと・カード会社を装うもの）を説明する
 - セキュリティの学習・研修の講師：日本で実際に多い形（無作為な文字列のドメイン、無料ホスティング、パスに公式ドメイン）を、点数の表と一緒に説明する。点数の根拠が実データの件数で示されているので、「なぜ怪しいか」を数字で語れる
 - 研究・調べもの：`tools/calibrate.mjs`に別の月のフィッシングURLの一覧を入れ、兆候の出方の変化や、境目を変えたときの見抜けた割合と誤って疑った割合の動きを測る
 - CTF・謎解きの作問：見た目と持ち主が食い違うURL（`@`・キリル文字・公開接尾辞の境目）を題材にした問題を作り、解説にこのツールの部品の表を使う
@@ -205,6 +221,7 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 - Content Security Policyで、スクリプトとスタイルを同じ場所のファイルだけに限る（`default-src 'none'`、`connect-src`なし）。インラインのスクリプト・イベントハンドラー・style属性を使わない
 - QRコードのライブラリーは`vendor/`に置き、CDNから読まない。配布物との一致をテストがSHA-256で確かめる
 - 入力は`textContent`で描画する
+- 保存するのは「自分で信頼するドメイン」と画面の言語だけ（localStorage）
 
 詳しくは[SECURITY.md](SECURITY.md)にあります。
 
@@ -218,6 +235,8 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 - 公式のドメインでも、改ざんされたページや、公式サイトの転送機能の悪用は見分けられない
 - 短縮URLの行き先は展開しない（外部に問い合わせないため）
 - カメラは、httpsで開いたページか、ファイルを直接開いたとき（`file://`）、`localhost`で使える
+- 中身の種類は、決まった書き方（WIFI:・SMSTO:・MATMSG:・MECARD:・vCard・otpauth:など）だけを読み解く。書き方の違うものは「URL以外」としてそのまま見せる
+- 有料の電話番号は、日本の0570・0180で始まるものだけを見る
 
 ---
 
@@ -241,7 +260,11 @@ A. `js/url-core.js`の`BRANDS`に、名前・探す語・公式の登録ドメ�
 
 ### Q. 読み取った中身や画像はどこかに送られますか？
 
-A. 送られません。画像もブラウザーの中で読むだけです。保存するのは「自分で信頼するドメイン」の一覧だけで、このブラウザーの中（localStorage）に置きます。
+A. 送られません。画像もブラウザーの中で読むだけです。保存するのは「自分で信頼するドメイン」の一覧と画面の言語だけで、このブラウザーの中（localStorage）に置きます。
+
+### Q. 2段階認証の設定のQRコードを読ませても大丈夫ですか？
+
+A. 画像はブラウザーの中で読むだけで、送りません。秘密鍵は伏せて表示します。ただし、秘密鍵を知られると同じ確認コードを作られるので、「表示する」を押すのは周りに人がいないときにしてください。
 
 ---
 
@@ -261,7 +284,7 @@ npm test
 ```
 
 - Node.js 22以上で動きます。依存パッケージはありません
-- 公開接尾辞の一覧の公式のテストベクター、兆候と点数、サンプルの判定、`samples/qr/`の画像の中身（画素で比べる）、`vendor/`のSHA-256、`index.html`とCSP、配色のコントラスト比、行の長さ、READMEとSCORING.mdの表を検証します
+- 公開接尾辞の一覧の公式のテストベクター、兆候と点数、中身の種類の既知解答（Wi-Fiのエスケープ・vCardの行の折り返し・Key Uri Format・BIP 21の例）、サンプルの判定、`samples/qr/`の画像の中身（画素で比べる）、`vendor/`のSHA-256、`index.html`とCSP、日英の辞書（同じ形・英語に日本語の文字がない）、配色のコントラスト比、行の長さ、日英両方のREADMEとSCORING.mdの表を検証します
 - 表の数値（判定の確かさ・兆候の点数・サンプルの判定）は、`js/model.js`と計算部から作り直して照合します
 - GitHub Actionsでpushとpull_requestのたびに自動で実行します
 
@@ -291,15 +314,26 @@ qr-risk-radar/
 │   └── workflows/                        # GitHub Actionsのワークフロー
 │       └── test.yml                      # pushとpull_requestでnpm testを実行
 ├── assets/                               # 画像
+│   ├── en/                               # 英語の画面のスクリーンショット
+│   │   ├── screenshot.png                # 偽のURLの判定
+│   │   ├── screenshot2.png               # QRコードの画像を読む
+│   │   ├── screenshot3.png               # 本物の公式サイトとURLの部品
+│   │   ├── screenshot4.png               # 判定の確かさ
+│   │   ├── screenshot5.png               # ダークモード
+│   │   └── screenshot6.png               # 中身の種類
 │   ├── favicon.svg                       # タブのアイコン
 │   ├── screenshot.png                    # スクリーンショット（偽のURLの判定）
 │   ├── screenshot2.png                   # スクリーンショット（QRコードの画像を読む）
 │   ├── screenshot3.png                   # スクリーンショット（本物の公式サイトとURLの部品）
 │   ├── screenshot4.png                   # スクリーンショット（判定の確かさ）
-│   └── screenshot5.png                   # スクリーンショット（ダークモード）
+│   ├── screenshot5.png                   # スクリーンショット（ダークモード）
+│   └── screenshot6.png                   # スクリーンショット（中身の種類）
 ├── js/                                   # 画面から読むスクリプト
+│   ├── i18n.js                           # 画面の言語の決定と、静的な文言の差し替え
+│   ├── messages-en.js                    # 画面の文言と兆候の説明（英語）
 │   ├── messages.js                       # 画面の文言と兆候の説明（日本語）
 │   ├── model.js                          # 生成物：兆候の点数・境目・評価（tools/calibrate.mjsが作る）
+│   ├── payload-core.js                   # 計算部：QRコードの中身の種類（Wi-Fi・電話・SMS・連絡先など）
 │   ├── psl-data.js                       # 生成物：公開接尾辞の一覧（tools/build-psl.mjsが作る）
 │   ├── qr-worker.js                      # 生成物：QRコードのデコーダー（tools/build-worker.mjsが作る）
 │   ├── samples.js                        # 学習用のサンプル（画面のボタンとsamples/qr/の元）
@@ -313,13 +347,17 @@ qr-risk-radar/
 │       ├── 05_random.png                 # 無作為な文字列のドメイン
 │       ├── 06_shortener.png              # 短縮URL
 │       ├── 07_javascript.png             # javascript:スキーム
-│       ├── 08_wifi.png                   # Wi-Fiの設定
-│       └── 09_official.png               # Amazonの公式のログイン
+│       ├── 08_wifi.png                   # 暗号化なしのWi-Fi
+│       ├── 09_official.png               # Amazonの公式のログイン
+│       ├── 10_otp.png                    # 2段階認証の鍵
+│       └── 11_sms.png                    # 本文にURLがあるSMS
 ├── test/                                 # 自動テスト（node --test）と試験用の画像
 │   ├── core.test.js                      # 兆候と点数、model.jsの形
 │   ├── format.test.js                    # 行の長さ、app.jsに日本語の文字列がないこと
 │   ├── html.test.js                      # index.htmlとCSP、タブ、配色のコントラスト比
+│   ├── i18n.test.js                      # 日英の辞書・index.htmlの訳・初期の言語
 │   ├── load.js                           # テストで計算部を読み込む
+│   ├── payload.test.js                   # 中身の種類の既知解答（Wi-Fiのエスケープ・vCardの折り返しなど）
 │   ├── psl.test.js                       # 公開接尾辞の一覧（公式のテストベクター・生成物）
 │   ├── qr/                               # 以前から置いている試験用のQRコード
 │   │   ├── 01_homograph_attack.png       # キリル文字のаmazon.com（PNG）
@@ -332,7 +370,7 @@ qr-risk-radar/
 │   │   ├── 13_complex_attack.svg         # 同（SVG）
 │   │   ├── 14_safe_url.png               # 公式サイト（PNG）
 │   │   └── 14_safe_url.svg               # 同（SVG）
-│   ├── readme.test.js                    # README・SCORING.mdの表とYAML、ディレクトリー構造
+│   ├── readme.test.js                    # 日英のREADME・SCORING.mdの表とYAML、ディレクトリー構造
 │   ├── samples.test.js                   # サンプルの判定、QRコードの画像、兆候の説明、CRC-32
 │   ├── test_psl.txt                      # 公開接尾辞の一覧の公式のテストベクター
 │   └── vendor.test.js                    # vendor/のSHA-256とqr-worker.jsの生成
@@ -360,10 +398,11 @@ qr-risk-radar/
 ├── ATTACKS.md                            # QRコードを使った攻撃の手口と事例
 ├── CLAUDE.md                             # Claude Code向けの開発メモ
 ├── LICENSE                               # MITライセンス
+├── README.en.md                          # 英語版のREADME
 ├── README.md                             # このファイル
 ├── SCORING.md                            # 点数と判定のしくみ
 ├── SECURITY.md                           # 安全対策と問題の報告先
-├── app.js                                # 画面の制御（入力・結果・QRコードの読み取りと生成）
+├── app.js                                # 画面の制御（入力・結果・QRコードの読み取りと生成・言語）
 ├── index.html                            # 画面
 ├── package.json                          # npm testの定義（依存なし）
 └── style.css                             # スタイルシート（ライト・ダーク）
@@ -373,7 +412,7 @@ qr-risk-radar/
 
 ## 💻 動作環境
 
-- Chromium系のブラウザー（Chrome・Edge）とFirefoxで動作を確かめています
+- Chromium系のブラウザー（Chrome・Edge）とFirefoxで動作を確かめています。画像の貼り付け（Ctrl+V）は、自動テストではChromium・Edgeだけで確かめています（Firefoxの自動操作では、貼り付けた中身がページに渡らないため）
 - サーバーは不要で、index.htmlをブラウザーで直接開いても、画像からの読み取りとカメラを含めて動きます。ローカルのサーバーで開く場合は`python -m http.server 8000`を実行し、http://localhost:8000/ を開きます
 - カメラは、httpsで開いたページ、`localhost`、ファイルを直接開いたときに使えます
 

@@ -14,11 +14,14 @@ It is a defensive/educational tool. Nothing is sent anywhere: no network request
 - Plain scripts (not ES modules) attached to `globalThis`, loaded in this order by `index.html`:
   1. `js/psl-data.js` – generated Public Suffix List (`QRPsl`)
   2. `js/model.js` – generated points/thresholds/evaluation (`QRModel`)
-  3. `js/url-core.js` – pure logic (`QRRiskCore`): `publicSuffix`, `registrableDomain`, `analyze`, `score`, brand list
-  4. `js/messages.js` – all UI strings and signal explanations in Japanese (`QRText`). `app.js` must not contain Japanese literals
-  5. `js/samples.js` – learning samples (`QRSamples`), also the source of `samples/qr/*.png`
-  6. `vendor/qr-scanner/qr-scanner.umd.min.js`, `js/qr-worker.js` (generated, decoder without the ES `export`), `vendor/qrcode-generator/qrcode.js`
-  7. `app.js` – DOM only (tabs, result rendering, trusted domains, camera/file decoding, QR generation)
+  3. `js/url-core.js` – pure logic (`QRRiskCore`): `publicSuffix`, `registrableDomain`, `analyze`, `score`, brand list (`en` = English brand name)
+  4. `js/payload-core.js` – pure logic (`QRPayload.parse`): QR content types (Wi-Fi, tel, SMS, mail, vCard/MECARD, geo, otpauth, crypto, VEVENT, app links) → `{ type, fields, notes, urls }`
+  5. `js/messages.js` / `js/messages-en.js` – all UI strings, signal and content-type texts (`QRTexts.ja` / `QRTexts.en`, same shape; `html` = static text for `data-i18n`). `app.js` must not contain Japanese literals
+  6. `js/i18n.js` – language choice (`?lang=` → saved → browser language) and static text swap (`QRI18n`)
+  7. `js/samples.js` – learning samples (`QRSamples`, with `titleEn`/`noteEn`/`groupEn`), also the source of `samples/qr/*.png`
+  8. `vendor/qr-scanner/qr-scanner.umd.min.js`, `js/qr-worker.js` (generated, decoder without the ES `export`), `vendor/qrcode-generator/qrcode.js`
+  9. `app.js` – DOM only (tabs, result rendering, content types, trusted domains, camera/file/paste/drop decoding, QR generation, language switch).
+     Status lines are stored as message keys (`setStatus`) so a language switch can repaint them
 - CSP is `'self'` only plus `worker-src blob:` (qr-scanner builds its worker from a Blob). The default qr-scanner overlay uses inline `style` attributes, so `app.js` passes its own `overlay` element.
 - `app.js` overrides `QrScanner.createQrEngine` to build the worker from `js/qr-worker.js` instead of `import()` (Chromium/Edge block `import()` on `file://`).
 
@@ -46,3 +49,5 @@ python -m http.server 8000            # serve locally
 - Render user input with `textContent`; no `innerHTML`, `eval`, inline handlers or style attributes (`test/html.test.js`).
 - Japanese docs: no space between Japanese and Latin characters, long-vowel forms (ブラウザー, サーバー), at most two bold spans per section (`test/readme.test.js`).
 - Sample domains use `.example`/`example.com` except where a real TLD or service is the point of the sample.
+- Any new UI text goes into both `js/messages.js` and `js/messages-en.js` (`test/i18n.test.js` checks shape and that English has no Japanese characters). README.md and README.en.md must keep the same headings; their tables are generated from the core and checked by `test/readme.test.js`.
+- Page CSP blocks `fetch`, and automated Firefox does not pass clipboard contents to paste events; browser checks pass images as Base64 and test paste only in Chromium/Edge.

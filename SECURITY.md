@@ -36,7 +36,9 @@ default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: bl
 
 ## 保存するもの
 
-- 「自分で信頼するドメイン」だけを`localStorage`（キー`qr-risk-radar-whitelist`）に保存する。読み込むときはドメイン名として正しいものだけを残し、公開接尾辞（`co.jp`・`pages.dev`など）は登録させない
+- 「自分で信頼するドメイン」を`localStorage`（キー`qr-risk-radar-whitelist`）に保存する。読み込むときはドメイン名として正しいものだけを残し、公開接尾辞（`co.jp`・`pages.dev`など）は登録させない
+- 画面の言語（`ja`か`en`）を`localStorage`（キー`qr-risk-radar-lang`）に保存する。言語のボタンを押したときだけ保存する
+- 読み取ったQRコードの中身（Wi-Fiのパスワード・2段階認証の秘密鍵を含む）は保存しない。パスワードと秘密鍵は伏せて表示し、ボタンを押したときだけ見せる
 - `localStorage`が使えない環境でも、開いている間は動く
 
 ## 問題の報告

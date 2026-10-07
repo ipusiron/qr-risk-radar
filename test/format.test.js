@@ -7,7 +7,7 @@ const lines = (f) => read(f).split("\n");
 const longest = (f) => Math.max(...lines(f).map((l) => [...l].length));
 
 // 手で書くファイル（生成物の js/psl-data.js・js/qr-worker.js・js/model.js と vendor/ は除く）
-const HAND = ["app.js", "style.css", "js/url-core.js", "js/messages.js", "js/samples.js",
+const HAND = ["app.js", "style.css", "js/url-core.js", "js/payload-core.js", "js/messages.js", "js/messages-en.js", "js/i18n.js", "js/samples.js",
   "tools/build-psl.mjs", "tools/build-worker.mjs", "tools/calibrate.mjs", "tools/make-qr.mjs",
   ...fs.readdirSync(new URL("../test/", import.meta.url)).filter((f) => f.endsWith(".js")).map((f) => "test/" + f)];
 
