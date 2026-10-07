@@ -1,73 +1,49 @@
-# セキュリティポリシー
+# セキュリティ
 
-## セキュリティ機能
+QR Risk Radarが実装している安全対策と、問題を見つけたときの連絡先です。ここに書いたものは、すべて現在の版で実装されています。
 
-このプロジェクトでは、以下のセキュリティ対策を実装しています：
+## 外部に送らない
 
-### 1. クロスサイトスクリプティング（XSS）対策
-- **DOM操作の安全化**: `innerHTML`の使用を避け、`textContent`や`createElement`を使用
-- **HTMLエスケープ**: ユーザー入力は適切にエスケープして表示
-- **CSP実装**: Content Security Policyでスクリプト実行を制限
+- 入力したURL・文字、読み取ったQRコードの中身、選んだ画像は、ブラウザーの外へ送らない。URLを開くこともしない（画面にリンクとして置かない）
+- 判定に使うデータ（公開接尾辞の一覧・点数）は、すべてリポジトリーの中のファイルから読む
+- 外部のサーバーに問い合わせる機能（ドメインの登録日、通報済みの一覧など）は持たない
 
-### 2. 入力検証
-- **ドメイン名検証**: ホワイトリスト登録時の厳格なドメイン形式チェック
-- **URL検証**: 分析対象URLの基本的な形式チェック
-- **型チェック**: 入力データの型と形式を検証
+## Content Security Policy
 
-### 3. セキュリティヘッダー
-実装されているHTTPセキュリティヘッダー：
-- `Content-Security-Policy`: スクリプト実行とリソース読み込みを制限
-- `X-Content-Type-Options: nosniff`: MIMEタイプスニッフィングを防止
-- `X-Frame-Options: DENY`: クリックジャッキング攻撃を防止
-- `X-XSS-Protection`: ブラウザーのXSS保護を有効化
-- `Referrer-Policy`: リファラー情報の漏洩を制限
+`index.html`のmeta要素で次の値を設定しています。
 
-### 4. データ保護
-- **ローカルストレージの安全利用**: JSON.parseのエラーハンドリング
-- **データ検証**: localStorageから読み込んだデータの検証
-- **エラーハンドリング**: 適切な例外処理
+```text
+default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; worker-src blob:; base-uri 'none'; form-action 'none'; object-src 'none'
+```
 
-### 5. 外部依存関係の管理
-- **CDN**: 信頼できるunpkg.comから読み込み
-- **Integrity**: スクリプトの整合性チェック（SRI）
-- **Fallback**: 外部ライブラリ読み込み失敗時の適切な処理
+- スクリプトとスタイルは同じ場所のファイルだけを読む。インラインのスクリプト・イベントハンドラー属性・style属性を使わない
+- `img-src data: blob:`は、選んだ画像の表示（`blob:`）と、作ったQRコードの画像（`data:`）のため
+- `worker-src blob:`は、QRコードのデコーダー（qr-scanner）が`Blob`からワーカーを作るため
+- `connect-src`を許していないので、ページから外部へ通信できない
+- Apacheに置く場合の`.htaccess`も同じ値に`frame-ancestors 'none'`を足している（GitHub Pagesはこのファイルを使わない）
+- `<meta name="referrer" content="no-referrer">`を入れている
 
-## 報告されたセキュリティ問題への対応
+## 外部のライブラリー
 
-### 解決済みの問題
+- QRコードの読み取り（qr-scanner 1.4.2）と生成（qrcode-generator 2.0.4）は、npmの配布物から取り出して`vendor/`に置いている。CDNから読まない
+- `vendor/`のファイルは1バイトも変えておらず、`test/vendor.test.js`がSHA-256を照合する（出所は`vendor/README.md`）
+- qr-scannerのデコーダーは、ESモジュールの`export`だけを外した`js/qr-worker.js`から作る（`tools/build-worker.mjs`が生成し、テストが元のファイルとの一致を確かめる）。Chromium・Edgeは`file://`で開いたページの`import()`を拒むため
 
-1. **XSS脆弱性** (解決済み)
-   - 問題: `innerHTML`によるスクリプト注入の可能性
-   - 対策: DOM APIの安全な使用とHTMLエスケープの実装
+## 描画
 
-2. **入力検証不足** (解決済み)
-   - 問題: ユーザー入力の検証不足
-   - 対策: 厳格な入力検証とサニタイゼーションの実装
+- 入力やQRコードの中身は`textContent`で描画する。`innerHTML`・`eval`・`new Function`を使わない（`test/html.test.js`が検査する）
+- 調べる中身にURLが含まれていても、`<a>`にしない。行き先を開くには、利用者が自分でコピーする必要がある
 
-3. **CSP未実装** (解決済み)
-   - 問題: Content Security Policyの未設定
-   - 対策: 適切なCSPヘッダーの実装
+## 保存するもの
 
-## セキュリティのベストプラクティス
+- 「自分で信頼するドメイン」だけを`localStorage`（キー`qr-risk-radar-whitelist`）に保存する。読み込むときはドメイン名として正しいものだけを残し、公開接尾辞（`co.jp`・`pages.dev`など）は登録させない
+- `localStorage`が使えない環境でも、開いている間は動く
 
-### 開発者向け
-1. ユーザー入力は常に検証・サニタイズする
-2. `innerHTML`の使用を避け、`textContent`や`createElement`を使用する
-3. 外部ライブラリは信頼できるソースから読み込む
-4. セキュリティヘッダーを適切に設定する
+## 問題の報告
 
-### ユーザー向け
-1. 信頼できないQRコードをスキャンしない
-2. 怪しいURLは分析結果を確認してからアクセスする
-3. ホワイトリスト機能を活用して信頼できるドメインを登録する
-4. ブラウザーとOSを最新に保つ
+セキュリティの問題を見つけたときは、GitHubのリポジトリー（[ipusiron/qr-risk-radar](https://github.com/ipusiron/qr-risk-radar)）のIssueで知らせてください。
 
-## セキュリティ問題の報告
+## 注意
 
-セキュリティ問題を発見した場合は、GitHubのIssuesまたはディスカッションで報告してください。
-
-## 制限事項
-
-- このツールは教育・研究目的のものです
-- 完全なセキュリティ保証は提供しません
-- 判定結果は参考程度に留め、最終的な安全性判断は各自で行ってください
+- 判定はURLの形だけを見た目安です。「目立つ兆候なし」は安全という意味ではありません（[SCORING.md](SCORING.md)の「限界」）
+- 判定の結果だけで、URLを開くかどうかを決めないでください。送り主や公式のアプリ・ブックマークで確かめてください
