@@ -12,7 +12,7 @@ English · [日本語](README.md)
 
 **QR Risk Radar** is a web tool that breaks URLs and QR code contents into parts and counts signs commonly seen in phishing.
 
-It reads QR codes from the camera or an image, clearly shows the part that determines the owner (the registrable domain), and adds up points per sign to give "High", "Medium", or "No obvious signs". Contents other than URLs, such as Wi-Fi settings, SMS, contacts, and two-factor authentication keys, are also broken into fields with notes on what to watch for. The points and thresholds were set with real phishing URLs and sites frequently visited in Japan, and the measured accuracy is shown on the page. Everything runs in the browser; the tool never opens URLs or sends anything out.
+It reads QR codes from the camera or an image, clearly shows the part that determines the owner (the registrable domain), and adds up points per sign to give "High", "Medium", or "No obvious signs". Contents other than URLs, such as Wi-Fi settings, SMS, contacts, and two-factor authentication keys, are also broken into fields with notes on what to watch for. Direction-changing characters (RLO) and invisible characters are replaced with labels and shown in their actual order. The points and thresholds were set with real phishing URLs and sites frequently visited in Japan, and the measured accuracy is shown on the page. Everything runs in the browser; the tool never opens URLs or sends anything out.
 
 ---
 
@@ -44,6 +44,9 @@ Try it directly in your browser.
 >![Content type. An SMS with a URL in the message, broken into number, message, notes, and the URL inside with its result](assets/en/screenshot6.png)
 >*Content type. An SMS with a URL in the message, broken into number, message, notes, and the URL inside with its result*
 
+>![A direction-changing character (RLO). The content is shown in its actual order with a label, and a button opens WeirdString Inspector](assets/en/screenshot7.png)
+>*A direction-changing character (RLO). The content is shown in its actual order with a label, and a button opens WeirdString Inspector*
+
 ---
 
 ## ✨ Features
@@ -53,6 +56,8 @@ Try it directly in your browser.
 - Signs and points: looks for 28 kinds of signs and lists the points and an explanation for each. A total of 3 points or more is "Medium" and 4 or more is "High". `javascript:`, `data:`, and similar schemes are always "High"
 - Hidden destinations: extracts URLs embedded in the query and URLs or email addresses written in Base64, and checks that destination with one button
 - Content types: breaks Wi-Fi settings, phone numbers, SMS, email, contacts (vCard, MECARD), locations, two-factor authentication keys, crypto payment addresses, events, and app launches into fields. Shows notes such as unencrypted Wi-Fi, paid information lines, and two-factor secrets, and checks the URLs inside. Passwords and secret keys are masked and shown only when you press a button
+- Invisible and direction-changing characters: reports direction-changing characters such as RLO and invisible characters such as zero-width spaces and tag characters as signs. The content display replaces them with labels such as `[RLO U+202E]` and shows the text in its actual order (so the trick that makes a name ending in ".exe" look like ".pdf" is visible on the screen)
+- Works with WeirdString Inspector: content with Japanese or invisible characters can be passed with a button to [WeirdString Inspector](https://ipusiron.github.io/weirdstring-inspector/) (Day023) to inspect each character. The content goes after the # in the URL, so it is never sent to the server
 - Read QR codes: from the camera (the rear camera on phones) or an image file. When nothing can be read, the previous result is cleared and the reason is shown
 - Paste and drop: paste an image with Ctrl+V (⌘+V on Mac) or drop it on the page to read it as a QR code. Drop a link to check that URL
 - Make QR codes: turns the checked content into a QR code PNG, for training materials or for testing scanners
@@ -173,7 +178,8 @@ The 13 images in `samples/qr/` are the samples above turned into QR codes with `
 - Security training instructors: explain the shapes that are actually common in Japan (random-string domains, free hosting, official domains in the path) together with the points table. The points are backed by counts from real data, so you can explain "why it is suspicious" with numbers
 - Research: feed another month's phishing URL list to `tools/calibrate.mjs` to measure how the signs change and how the detection and false-flag rates move when the thresholds change
 - CTF and puzzle making: write problems about URLs whose appearance and owner differ (the @, Cyrillic letters, public suffix boundaries), and use this tool's parts table in the explanation
-- Combining with other tools: if the host has confusing characters, check them one by one with [WeirdString Inspector](https://ipusiron.github.io/weirdstring-inspector/) (Day023). To remove tracking values from a URL before sending it to someone, use [URLPurifier](https://ipusiron.github.io/urlpurifier/) (Day039)
+- Checking file names and links you received: paste file names or links from mail or chat to see whether direction-changing characters (the trick that makes .exe look like .pdf) or invisible characters are hidden in them
+- Combining with other tools: if the host has confusing characters, press "Inspect each character in WeirdString Inspector" in the result to pass it to [WeirdString Inspector](https://ipusiron.github.io/weirdstring-inspector/) (Day023) and check each character. To remove tracking values from a URL before sending it to someone, use [URLPurifier](https://ipusiron.github.io/urlpurifier/) (Day039)
 
 The result is a rough guide based only on the shape of the URL and cannot prove that something is safe. The author does not encourage misuse.
 
@@ -186,6 +192,7 @@ The result is a rough guide based only on the shape of the URL and cannot prove 
 - The QR code libraries are kept in `vendor/` and not loaded from a CDN. Tests check their SHA-256 against the npm packages
 - Input is rendered with `textContent`
 - Only "Domains you trust" and the UI language are saved (localStorage)
+- Only when you press "Inspect each character in WeirdString Inspector" does the tool open Day023 in a new tab with the content after the # in the URL. The part after # is never sent to the server, but it stays in that tab's URL (and the browser history)
 
 See [SECURITY.md](SECURITY.md) (Japanese) for details.
 
@@ -201,6 +208,7 @@ See [SECURITY.md](SECURITY.md) (Japanese) for details.
 - The camera works on pages opened over https, on `localhost`, and when the file is opened directly (`file://`)
 - Content types are read only in their standard formats (WIFI:, SMSTO:, MATMSG:, MECARD:, vCard, otpauth:, etc.). Other formats are shown as they are under "Not a URL"
 - Paid phone numbers are detected only for Japanese numbers starting with 0570 or 0180
+- Invisible characters are detected only from a fixed list (zero-width characters, tag characters, control characters, etc.). Detailed checks for look-alike characters are left to WeirdString Inspector (Day023)
 
 ---
 
@@ -226,6 +234,10 @@ A. Add the name, the words to look for, and the official registrable domains to 
 
 A. No. Images are read only inside the browser. The only things saved are the list of "Domains you trust" and the UI language, kept in this browser (localStorage).
 
+### Q. Where does the content go when I press "Inspect each character in WeirdString Inspector"?
+
+A. It opens WeirdString Inspector on the same site (ipusiron.github.io) in a new tab and passes the content after the # in the URL. The part after # is never sent to the server. However, the content stays in that tab's URL, so if you do not want it in your browser history, close the tab and clear the history.
+
 ### Q. Is it OK to read a two-factor authentication setup QR code?
 
 A. The image is read only in the browser and is never sent. The secret key is masked. However, anyone who learns the secret key can generate the same codes, so press "Show" only when nobody is around.
@@ -248,7 +260,7 @@ npm test
 ```
 
 - Runs on Node.js 22 or later. No dependencies
-- Checks the official Public Suffix List test vectors, signs and points, known answers for content types (Wi-Fi escapes, vCard line folding, the Key Uri Format and BIP 21 examples), sample results, the contents of the `samples/qr/` images (pixel by pixel), SHA-256 of `vendor/`, `index.html` and the CSP, the Japanese and English dictionaries (same shape, no Japanese characters in English), color contrast, line lengths, and the tables in both READMEs and SCORING.md
+- Checks the official Public Suffix List test vectors, signs and points, invisible and direction-changing characters with their labels and the Day023 link, known answers for content types (Wi-Fi escapes, vCard line folding, the Key Uri Format and BIP 21 examples), sample results, the contents of the `samples/qr/` images (pixel by pixel), SHA-256 of `vendor/`, `index.html` and the CSP, the Japanese and English dictionaries (same shape, no Japanese characters in English), color contrast, line lengths, and the tables in both READMEs and SCORING.md
 - The numbers in the tables (accuracy, points, sample results) are rebuilt from `js/model.js` and the core and compared
 - GitHub Actions runs the tests on every push and pull_request
 
@@ -284,14 +296,16 @@ qr-risk-radar/
 │   │   ├── screenshot3.png               # Genuine official site and URL parts
 │   │   ├── screenshot4.png               # Measured accuracy
 │   │   ├── screenshot5.png               # Dark mode
-│   │   └── screenshot6.png               # Content type
+│   │   ├── screenshot6.png               # Content type
+│   │   └── screenshot7.png               # Direction-changing character (RLO)
 │   ├── favicon.svg                       # Tab icon
 │   ├── screenshot.png                    # Screenshot (result for a fake URL)
 │   ├── screenshot2.png                   # Screenshot (reading a QR code image)
 │   ├── screenshot3.png                   # Screenshot (genuine official site and URL parts)
 │   ├── screenshot4.png                   # Screenshot (measured accuracy)
 │   ├── screenshot5.png                   # Screenshot (dark mode)
-│   └── screenshot6.png                   # Screenshot (content type)
+│   ├── screenshot6.png                   # Screenshot (content type)
+│   └── screenshot7.png                   # Screenshot (direction-changing character)
 ├── js/                                   # Scripts loaded by the page
 │   ├── i18n.js                           # Chooses the UI language and swaps static text
 │   ├── messages-en.js                    # UI text and signal explanations (English)

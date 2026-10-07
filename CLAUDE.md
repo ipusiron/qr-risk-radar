@@ -14,7 +14,8 @@ It is a defensive/educational tool. Nothing is sent anywhere: no network request
 - Plain scripts (not ES modules) attached to `globalThis`, loaded in this order by `index.html`:
   1. `js/psl-data.js` – generated Public Suffix List (`QRPsl`)
   2. `js/model.js` – generated points/thresholds/evaluation (`QRModel`)
-  3. `js/url-core.js` – pure logic (`QRRiskCore`): `publicSuffix`, `registrableDomain`, `analyze`, `score`, brand list (`en` = English brand name)
+  3. `js/url-core.js` – pure logic (`QRRiskCore`): `publicSuffix`, `registrableDomain`, `analyze`, `score`, brand list (`en` = English brand name),
+     `splitControls`/`labelControls` (bidi and invisible characters as labels), `inspectorUrl` (WeirdString Inspector link, content after `#`)
   4. `js/payload-core.js` – pure logic (`QRPayload.parse`): QR content types (Wi-Fi, tel, SMS, mail, vCard/MECARD, geo, otpauth, crypto, VEVENT, app links) → `{ type, fields, notes, urls }`
   5. `js/messages.js` / `js/messages-en.js` – all UI strings, signal and content-type texts (`QRTexts.ja` / `QRTexts.en`, same shape; `html` = static text for `data-i18n`). `app.js` must not contain Japanese literals
   6. `js/i18n.js` – language choice (`?lang=` → saved → browser language) and static text swap (`QRI18n`)
@@ -47,6 +48,7 @@ python -m http.server 8000            # serve locally
 
 - Keep `vendor/` byte-identical to the npm tarballs (`test/vendor.test.js` checks SHA-256).
 - Render user input with `textContent`; no `innerHTML`, `eval`, inline handlers or style attributes (`test/html.test.js`).
+- Raw content (input echo, payload fields, URL parts, URLs inside) must go through `rawCode()`/`logical()` in `app.js` so bidi/invisible characters become labels and the text shows in logical order.
 - Japanese docs: no space between Japanese and Latin characters, long-vowel forms (ブラウザー, サーバー), at most two bold spans per section (`test/readme.test.js`).
 - Sample domains use `.example`/`example.com` except where a real TLD or service is the point of the sample.
 - Any new UI text goes into both `js/messages.js` and `js/messages-en.js` (`test/i18n.test.js` checks shape and that English has no Japanese characters). README.md and README.en.md must keep the same headings; their tables are generated from the core and checked by `test/readme.test.js`.
