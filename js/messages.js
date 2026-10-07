@@ -1,5 +1,5 @@
-// 画面の文言（日本語）。app.js は文言をここから引く（app.js に日本語の文字列を置かない）
-// 兆候の説明は、兆候の ID ごとに detail（と点数）を受け取って1文を返す
+// 画面の文言（日本語）。英語は js/messages-en.js。app.js は文言を QRTexts[言語] から引く（app.js に日本語の文字列を置かない）
+// 兆候の説明は、兆候の ID ごとに detail（と点数）を受け取って1文を返す。html は index.html の data-i18n・data-i18n-attr の文言（HTML と同じ）
 (function (root) {
   "use strict";
   const list = (a) => (a || []).join("、");
@@ -146,7 +146,42 @@
     },
   };
 
-  root.QRText = {
+  // index.html の静的な文言（data-i18n のキーごと。日本語は index.html に書いたものと同じ）
+  const html = {
+    tagline: "URLやQRコードの中身を部品に分け、フィッシングでよく見る兆候を数えます",
+    langButton: "EN",
+    langLabel: "英語に切り替える",
+    notice1: "判定はURLの形だけを見た目安です。",
+    notice2: "「目立つ兆候なし」は安全という意味ではありません。",
+    notice3: "URLを開いたり、外部に送ったりはしません（すべてこのブラウザーの中で動きます）。",
+    tablist: "入力のしかた",
+    tabManual: "URL・文字を入力",
+    tabQr: "QRコードを読む",
+    payloadLabel: "調べるURLまたは文字",
+    analyze: "調べる",
+    clear: "消す",
+    qrHint: "カメラで読むか、QRコードの写った画像を選んでください。画像はこのブラウザーの中で読むだけで、どこにも送りません。",
+    startCamera: "カメラで読む",
+    stopCamera: "カメラを止める",
+    pickImage: "画像を選ぶ",
+    dropZone: "画像をここにドロップするか、Ctrl+V（Macは⌘+V）で貼り付けても読めます。リンクをドロップすると、そのURLを判定します。",
+    imageAlt: "選んだ画像",
+    samplesTitle: "サンプルで試す",
+    samplesHint: "押すと入力欄に入り、そのまま判定します。印は、このツールの判定です。",
+    trustTitle: "自分で信頼するドメイン",
+    trustHint: "社内のサイトなど、自分で確かめた登録ドメインを入れておくと「信頼済み」と表示します。このブラウザーの中だけに保存します。",
+    trustLabel: "信頼するドメイン",
+    trustAdd: "追加",
+    accuracyTitle: "この判定の確かさ（実測）",
+    accuracyPhish: "フィッシングURLを見抜けた割合",
+    accuracyBenign: "普通のサイトを誤って疑った割合",
+    accuracyLimits: "判定に使わないもの: ページの中身、ドメインを取った時期、どこかに通報済みかどうか。"
+      + "URLの形に兆候が出ない偽サイト（乗っ取られた普通のサイトなど）は見抜けません。",
+  };
+
+  root.QRTexts = root.QRTexts || {};
+  root.QRTexts.ja = {
+    html,
     signals,
     evaluation,
     payload,
@@ -171,4 +206,6 @@
       icann: "ICANNの区分", private: "PRIVATEの区分（誰でもサブドメインを作れるサービス）", default: "一覧にない（最後のラベルを接尾辞とみなした）",
     },
   };
+  // 既定は日本語（言語を決める前と、Node のテスト）
+  root.QRText = root.QRTexts.ja;
 })(typeof globalThis !== "undefined" ? globalThis : this);

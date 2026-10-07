@@ -93,6 +93,7 @@
   }
 
   // ---------- ブランドと公式の登録ドメイン ----------
+  // en: 英語の画面での名前（ないときは name のまま）
   // token: URL の中で探す名前（英小文字。5文字以下は区切り〔. - _ / 数字〕で切った語と完全に一致したときだけ。
   //   6文字以上は文字列の一部でもよい。orico が oricon に当たらないように）。
   // official: そのブランドの公式の登録ドメイン（Tranco 上位100万件で実在を確認、2026-10-07）。偽装の多い国内外のブランドに限る
@@ -106,26 +107,28 @@
     { name: "Facebook", tokens: ["facebook"], official: ["facebook.com"] },
     { name: "Instagram", tokens: ["instagram"], official: ["instagram.com"] },
     { name: "Netflix", tokens: ["netflix"], official: ["netflix.com"] },
-    { name: "えきねっと", tokens: ["ekinet", "eki-net"], official: ["eki-net.com"] },
-    { name: "JR東日本", tokens: ["jreast"], official: ["jreast.co.jp"] },
+    { name: "えきねっと", en: "Eki-net (JR East)", tokens: ["ekinet", "eki-net"], official: ["eki-net.com"] },
+    { name: "JR東日本", en: "JR East", tokens: ["jreast"], official: ["jreast.co.jp"] },
     { name: "JRE POINT", tokens: ["jrepoint", "jre-point"], official: ["jrepoint.jp"] },
-    { name: "ビューカード", tokens: ["viewcard"], official: ["viewcard.co.jp"] },
-    { name: "三井住友（SMBC）", tokens: ["smbc", "vpass"], official: ["smbc-card.com", "vpass.ne.jp", "smbc.co.jp", "smbcnikko.co.jp"] },
-    { name: "セゾン", tokens: ["saison"], official: ["saisoncard.co.jp"] },
-    { name: "オリコ", tokens: ["orico"], official: ["orico.co.jp"] },
-    { name: "楽天", tokens: ["rakuten"], official: ["rakuten.co.jp", "rakuten-card.co.jp", "rakuten.com", "rakuten-bank.co.jp", "rakuten-sec.co.jp"] },
-    { name: "日本郵便", tokens: ["japanpost", "jppost"], official: ["japanpost.jp"] },
-    { name: "第一生命", tokens: ["daiichi", "dai-ichi"], official: ["dai-ichi-life.co.jp"] },
-    { name: "三菱UFJ", tokens: ["mufg"], official: ["mufg.jp", "mufgcard.com"] },
-    { name: "みずほ", tokens: ["mizuho"], official: ["mizuhobank.co.jp", "mizuho-fg.co.jp", "mizuho-sc.com"] },
-    { name: "イオン", tokens: ["aeon"], official: ["aeon.co.jp", "aeon.com"] },
-    { name: "エポスカード", tokens: ["eposcard"], official: ["eposcard.co.jp"] },
-    { name: "ドコモ", tokens: ["docomo"], official: ["docomo.ne.jp"] },
+    { name: "ビューカード", en: "VIEW Card", tokens: ["viewcard"], official: ["viewcard.co.jp"] },
+    { name: "三井住友（SMBC）", en: "SMBC (Sumitomo Mitsui)", tokens: ["smbc", "vpass"],
+      official: ["smbc-card.com", "vpass.ne.jp", "smbc.co.jp", "smbcnikko.co.jp"] },
+    { name: "セゾン", en: "Saison", tokens: ["saison"], official: ["saisoncard.co.jp"] },
+    { name: "オリコ", en: "Orico", tokens: ["orico"], official: ["orico.co.jp"] },
+    { name: "楽天", en: "Rakuten", tokens: ["rakuten"],
+      official: ["rakuten.co.jp", "rakuten-card.co.jp", "rakuten.com", "rakuten-bank.co.jp", "rakuten-sec.co.jp"] },
+    { name: "日本郵便", en: "Japan Post", tokens: ["japanpost", "jppost"], official: ["japanpost.jp"] },
+    { name: "第一生命", en: "Dai-ichi Life", tokens: ["daiichi", "dai-ichi"], official: ["dai-ichi-life.co.jp"] },
+    { name: "三菱UFJ", en: "MUFG", tokens: ["mufg"], official: ["mufg.jp", "mufgcard.com"] },
+    { name: "みずほ", en: "Mizuho", tokens: ["mizuho"], official: ["mizuhobank.co.jp", "mizuho-fg.co.jp", "mizuho-sc.com"] },
+    { name: "イオン", en: "AEON", tokens: ["aeon"], official: ["aeon.co.jp", "aeon.com"] },
+    { name: "エポスカード", en: "EPOS Card", tokens: ["eposcard"], official: ["eposcard.co.jp"] },
+    { name: "ドコモ", en: "docomo", tokens: ["docomo"], official: ["docomo.ne.jp"] },
     { name: "JCB", tokens: ["jcb"], official: ["jcb.co.jp"] },
-    { name: "ヤマト運輸", tokens: ["kuronekoyamato", "yamato"], official: ["kuronekoyamato.co.jp"] },
-    { name: "佐川急便", tokens: ["sagawa"], official: ["sagawa-exp.co.jp"] },
-    { name: "国税庁", tokens: ["e-tax", "etax"], official: ["nta.go.jp"] },
-    { name: "メルカリ", tokens: ["mercari"], official: ["mercari.com"] },
+    { name: "ヤマト運輸", en: "Yamato Transport", tokens: ["kuronekoyamato", "yamato"], official: ["kuronekoyamato.co.jp"] },
+    { name: "佐川急便", en: "Sagawa Express", tokens: ["sagawa"], official: ["sagawa-exp.co.jp"] },
+    { name: "国税庁", en: "National Tax Agency (Japan)", tokens: ["e-tax", "etax"], official: ["nta.go.jp"] },
+    { name: "メルカリ", en: "Mercari", tokens: ["mercari"], official: ["mercari.com"] },
     { name: "PayPay", tokens: ["paypay"], official: ["paypay.ne.jp"] },
     { name: "Yahoo! JAPAN", tokens: ["yahoo"], official: ["yahoo.co.jp", "yahoo.com"] },
   ];
@@ -239,21 +242,22 @@
     }
     // ブランド: 公式の登録ドメインでないのに、ブランド名がサブドメイン・登録ドメイン・パスに出る／登録ドメインが似ている
     const officialBrand = registrable ? BRANDS.find((b) => b.official.includes(registrable)) : null;
-    if (officialBrand) add("official", { brand: officialBrand.name, domain: registrable });
+    if (officialBrand) add("official", { brand: officialBrand.name, brandEn: officialBrand.en || officialBrand.name, domain: registrable });
     if (registrable && !u.ip && !officialBrand) {
       for (const b of BRANDS) {
         // 公式の登録ドメインの文字列そのものを、サブドメインやパスに入れて本物に見せかける（paypal.com.example.tk、/vpass.ne.jp/）
         const fake = b.official.find((d) => (subdomain + ".").includes(d + ".") || tail.toLowerCase().includes(d));
-        if (fake) add("fake-official", { brand: b.name, shown: fake, official: b.official });
+        const who = { brand: b.name, brandEn: b.en || b.name, official: b.official };
+        if (fake) add("fake-official", { ...who, shown: fake });
         const officialLabels = b.official.map((d) => d.split(".")[0]);
         const unconfused = unconfuse(regLabel);
-        if (officialLabels.includes(regLabel)) add("brand-other-tld", { brand: b.name, official: b.official });
-        else if (brandHits(regLabel, b.tokens)) add("brand-in-domain", { brand: b.name, official: b.official });
+        if (officialLabels.includes(regLabel)) add("brand-other-tld", who);
+        else if (brandHits(regLabel, b.tokens)) add("brand-in-domain", who);
         else if (officialLabels.some((o) => (o.length >= 5 && unconfused === o)
           || (o.length >= 6 && regLabel.length >= 6 && withinOneEdit(unconfused, o))))
-          add("lookalike", { brand: b.name, official: b.official });
-        else if (subdomain && brandHits(subdomain, b.tokens)) add("brand-in-subdomain", { brand: b.name, official: b.official });
-        else if (brandHits(tail, b.tokens)) add("brand-in-path", { brand: b.name, official: b.official });
+          add("lookalike", who);
+        else if (subdomain && brandHits(subdomain, b.tokens)) add("brand-in-subdomain", who);
+        else if (brandHits(tail, b.tokens)) add("brand-in-path", who);
       }
     }
     if (!officialBrand && subdomain && BAIT_WORDS.some((w) => wordsOf(subdomain).includes(w) || subdomain.includes(w + "-")))
