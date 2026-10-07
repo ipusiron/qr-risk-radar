@@ -41,6 +41,18 @@
       ],
     },
     {
+      group: "見えない文字",
+      groupEn: "Invisible characters",
+      items: [
+        { id: "rlo", title: "向きを変える文字（RLO）", url: "https://files.example/invoice\u202Efdp.exe",
+          note: "見た目はinvoiceexe.pdf。実際は.exeで終わる", expect: "high", signal: "bidi", qr: 12,
+          titleEn: "Direction-changing character (RLO)", noteEn: "Looks like invoiceexe.pdf, but actually ends with .exe" },
+        { id: "zwsp", title: "見えない文字（ゼロ幅スペース）", url: "https://login\u200B-check.example/",
+          note: "見た目はlogin-check.example。ホスト名では消えるが、中身には入っている", expect: "high", signal: "invisible", qr: 13,
+          titleEn: "Invisible character (zero-width space)", noteEn: "Looks like login-check.example. It vanishes from the host name but is in the content" },
+      ],
+    },
+    {
       group: "行き先を隠す",
       groupEn: "Hiding the destination",
       items: [

@@ -81,6 +81,8 @@
     ptsDangerLabel: "High regardless of points",
     ptsLabel: (p) => `${p} ${p === 1 ? "point" : "points"}`,
     follow: "Check this URL",
+    inspect: "Inspect each character in WeirdString Inspector",
+    inspectHint: "Opens in a new tab. The content goes after the # in the URL, so it is never sent to the server.",
     makeQr: "Make a QR code of this content",
     qrAlt: "Generated QR code",
     qrSave: "Save as PNG",

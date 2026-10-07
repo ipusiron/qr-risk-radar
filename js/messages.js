@@ -72,6 +72,8 @@
     ptsDangerLabel: "点数に関係なく高",
     ptsLabel: (p) => `${p}点`,
     follow: "このURLを調べる",
+    inspect: "WeirdString Inspectorで1文字ずつ見る",
+    inspectHint: "別のタブで開きます。中身はURLの#の後ろに入れるので、サーバーへは送られません。",
     makeQr: "この中身のQRコードを作る",
     qrAlt: "作ったQRコード",
     qrSave: "PNGで保存",

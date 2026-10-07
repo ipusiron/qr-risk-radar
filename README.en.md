@@ -58,7 +58,7 @@ Try it directly in your browser.
 - Make QR codes: turns the checked content into a QR code PNG, for training materials or for testing scanners
 - Measured accuracy: shows the "detected" and "wrongly flagged" rates measured on data not used for training
 - Domains you trust: add registrable domains you have verified, such as your company's sites, to show them as "Trusted". Public suffixes (`co.jp`, `pages.dev`, etc.) cannot be added
-- Samples: 21 samples grouped by technique. Press one to put it in the input box and check it
+- Samples: 23 samples grouped by technique. Press one to put it in the input box and check it
 - Japanese and English: switch the UI language with the button at the top right (it starts in your browser's language)
 
 ---
@@ -96,7 +96,7 @@ The full table of signs and points, how the thresholds were chosen, and how to r
 
 ## 🧪 Samples
 
-These are the 21 samples under "Try a sample" on the page. Domains use `.example` and `example.com`, which are reserved for examples; real names are used only for TLDs, free hosting, shorteners, and official sites (the host names are made up).
+These are the 23 samples under "Try a sample" on the page. Domains use `.example` and `example.com`, which are reserved for examples; real names are used only for TLDs, free hosting, shorteners, and official sites (the host names are made up).
 
 | Group | Sample | Content | Result |
 |---|---|---|---|
@@ -108,6 +108,8 @@ These are the 21 samples under "Try a sample" on the page. Domains use `.example
 | Making a fake look genuine | Brand name on free hosting | `https://eki-net-login.pages.dev/` | High (10 points) |
 | Throwaway domains | Random-string domain | `https://vzqxkwtr.top/jp/` | High (4 points) |
 | Throwaway domains | secure and account in the domain name | `https://secure-account-update.example/` | High (5 points) |
+| Invisible characters | Direction-changing character (RLO) | `https://files.example/invoice[RLO U+202E]fdp.exe` | High (5 points) |
+| Invisible characters | Invisible character (zero-width space) | `https://login[ZWSP U+200B]-check.example/` | High (6 points) |
 | Hiding the destination | IP address written in decimal | `http://3232235777/login` | High (5 points) |
 | Hiding the destination | Shortened URL | `https://bit.ly/3xY9Abc` | No obvious signs (1 point) |
 | Hiding the destination | A URL inside a URL | `https://example.com/redirect?url=https://login-check.example/` | No obvious signs (2 points) |
@@ -126,7 +128,7 @@ The four samples under "Hiding the destination" get "No obvious signs". Shortene
 
 ### QR code images for testing the reader
 
-The 11 images in `samples/qr/` are the samples above turned into QR codes with `tools/make-qr.mjs` (the same method as "Make a QR code" on the page).
+The 13 images in `samples/qr/` are the samples above turned into QR codes with `tools/make-qr.mjs` (the same method as "Make a QR code" on the page).
 
 | File | Content | Result |
 |---|---|---|
@@ -141,6 +143,8 @@ The 11 images in `samples/qr/` are the samples above turned into QR codes with `
 | `samples/qr/09_official.png` | `https://www.amazon.co.jp/ap/signin` | No obvious signs (0 points) |
 | `samples/qr/10_otp.png` | `otpauth://totp/Example:alice@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example` | Not a URL |
 | `samples/qr/11_sms.png` | `SMSTO:+81-90-0000-0000:Your parcel could not be delivered. Reschedule: https://sagawa-redelivery.example/` | Not a URL |
+| `samples/qr/12_rlo.png` | `https://files.example/invoice[RLO U+202E]fdp.exe` | High (5 points) |
+| `samples/qr/13_zwsp.png` | `https://login[ZWSP U+200B]-check.example/` | High (6 points) |
 
 `test/qr/` also has 5 older codes (PNG and SVG).
 
@@ -310,7 +314,9 @@ qr-risk-radar/
 │       ├── 08_wifi.png                   # Unencrypted Wi-Fi
 │       ├── 09_official.png               # Amazon's official login
 │       ├── 10_otp.png                    # Two-factor authentication key
-│       └── 11_sms.png                    # SMS with a URL in the message
+│       ├── 11_sms.png                    # SMS with a URL in the message
+│       ├── 12_rlo.png                    # Direction-changing character (RLO)
+│       └── 13_zwsp.png                   # Invisible character (zero-width space)
 ├── test/                                 # Automated tests (node --test) and test images
 │   ├── controls.test.js                  # Direction and invisible characters, labels, Day023 link
 │   ├── core.test.js                      # Signals and points, shape of model.js

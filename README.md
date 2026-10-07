@@ -98,7 +98,7 @@ hub: true
 - QRコードを作る：調べた中身をQRコードのPNGにする。訓練の資料や、読み取りの試験に使える
 - 判定の確かさ：学習に使っていないデータで測った「見抜けた割合」と「誤って疑った割合」を画面に載せる
 - 自分で信頼するドメイン：社内のサイトなど、自分で確かめた登録ドメインを登録すると「信頼済み」と出る。公開接尾辞（`co.jp`・`pages.dev`など）は登録できない
-- サンプル：手口ごとに21個。押すと入力欄に入り、そのまま判定する
+- サンプル：手口ごとに23個。押すと入力欄に入り、そのまま判定する
 - 日英対応：右上のボタンで画面の言語を切り替えられる（最初はブラウザーの言語に合わせる）
 
 ---
@@ -136,7 +136,7 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 
 ## 🧪 サンプル
 
-画面の「サンプルで試す」にある21個です。ドメインは例示用に予約された`.example`と`example.com`を使い、TLD・無料ホスティング・短縮URL・公式の例だけ実在の名前を使っています（ホスト名は架空です）。
+画面の「サンプルで試す」にある23個です。ドメインは例示用に予約された`.example`と`example.com`を使い、TLD・無料ホスティング・短縮URL・公式の例だけ実在の名前を使っています（ホスト名は架空です）。
 
 | 分類 | サンプル | 中身 | 判定 |
 |---|---|---|---|
@@ -148,6 +148,8 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 | 偽物を本物に見せる | 無料ホスティングにブランド名 | `https://eki-net-login.pages.dev/` | 高（10点） |
 | 使い捨てのドメイン | 無作為な文字列のドメイン | `https://vzqxkwtr.top/jp/` | 高（4点） |
 | 使い捨てのドメイン | ドメイン名にsecure・account | `https://secure-account-update.example/` | 高（5点） |
+| 見えない文字 | 向きを変える文字（RLO） | `https://files.example/invoice[RLO U+202E]fdp.exe` | 高（5点） |
+| 見えない文字 | 見えない文字（ゼロ幅スペース） | `https://login[ZWSP U+200B]-check.example/` | 高（6点） |
 | 行き先を隠す | 10進数で書いたIPアドレス | `http://3232235777/login` | 高（5点） |
 | 行き先を隠す | 短縮URL | `https://bit.ly/3xY9Abc` | 目立つ兆候なし（1点） |
 | 行き先を隠す | URLの中に別のURL | `https://example.com/redirect?url=https://login-check.example/` | 目立つ兆候なし（2点） |
@@ -166,7 +168,7 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 
 ### 読み取りの試験に使えるQRコードの画像
 
-`samples/qr/`の11枚は、上のサンプルを`tools/make-qr.mjs`でQRコードにしたものです（画面の「QRコードを作る」と同じ作り方）。
+`samples/qr/`の13枚は、上のサンプルを`tools/make-qr.mjs`でQRコードにしたものです（画面の「QRコードを作る」と同じ作り方）。
 
 | ファイル | 中身 | 判定 |
 |---|---|---|
@@ -181,6 +183,8 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 | `samples/qr/09_official.png` | `https://www.amazon.co.jp/ap/signin` | 目立つ兆候なし（0点） |
 | `samples/qr/10_otp.png` | `otpauth://totp/Example:alice@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example` | URL以外 |
 | `samples/qr/11_sms.png` | `SMSTO:+81-90-0000-0000:Your parcel could not be delivered. Reschedule: https://sagawa-redelivery.example/` | URL以外 |
+| `samples/qr/12_rlo.png` | `https://files.example/invoice[RLO U+202E]fdp.exe` | 高（5点） |
+| `samples/qr/13_zwsp.png` | `https://login[ZWSP U+200B]-check.example/` | 高（6点） |
 
 `test/qr/`にも、以前から置いている5種類（PNGとSVG）があります。
 
@@ -350,7 +354,9 @@ qr-risk-radar/
 │       ├── 08_wifi.png                   # 暗号化なしのWi-Fi
 │       ├── 09_official.png               # Amazonの公式のログイン
 │       ├── 10_otp.png                    # 2段階認証の鍵
-│       └── 11_sms.png                    # 本文にURLがあるSMS
+│       ├── 11_sms.png                    # 本文にURLがあるSMS
+│       ├── 12_rlo.png                    # 向きを変える文字（RLO）
+│       └── 13_zwsp.png                   # 見えない文字（ゼロ幅スペース）
 ├── test/                                 # 自動テスト（node --test）と試験用の画像
 │   ├── controls.test.js                  # 向きを変える文字・見えない文字の兆候と印、Day023へのリンク
 │   ├── core.test.js                      # 兆候と点数、model.jsの形

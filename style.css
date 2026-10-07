@@ -238,6 +238,21 @@ textarea { font-family: ui-monospace, Consolas, monospace; resize: vertical; }
 body.dragging .drop-zone { border-color: var(--accent); background: var(--low-bg); color: var(--low-fg); }
 body.dragging main { outline: 3px dashed var(--accent); outline-offset: 4px; }
 
+/* 生の中身は並び順どおりに表示し、向きを変える文字・見えない文字は印にする */
+.logical { unicode-bidi: bidi-override; direction: ltr; }
+.ctrl {
+  display: inline-block;
+  margin: 0 0.15em;
+  padding: 0 0.3em;
+  border-radius: 4px;
+  background: var(--high-bg);
+  color: var(--high-fg);
+  font-size: 0.85em;
+  white-space: nowrap;
+}
+.inspect { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; margin: 0.5rem 0; }
+.inspect .hint { margin: 0; }
+
 /* 中身の種類 */
 .payload h3 { font-size: 1.05rem; margin: 1rem 0 0.4rem; }
 .payload h4 { font-size: 0.95rem; margin: 0.8rem 0 0.3rem; }
