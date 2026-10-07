@@ -21,6 +21,11 @@
     return node;
   }
   const fmt = (n) => n.toLocaleString(U.locale);
+
+  // 生の中身を、向きを変える文字・見えない文字を印に置き換えて並べる（表示が反転したり、見えない文字が隠れたりしないように）
+  const logical = (text) => C.splitControls(String(text)).map((x) => (x.text !== undefined ? x.text
+    : el("span", { class: `ctrl ctrl-${x.kind}`, text: `${x.name} ${x.code}` })));
+  const rawCode = (text) => el("code", { class: "logical" }, logical(text));
   const missRate = (100 - M.evaluation.find((e) => e.id === "jpcert").medium).toFixed(1);
 
   // 状態の文（id ごとに、文言のキーと引数を持つ。言語を切り替えたら作り直す）
@@ -102,7 +107,7 @@
   function partsTable(url) {
     const rows = [];
     const add = (key, value, extra) => {
-      if (value) rows.push(el("tr", {}, el("th", { scope: "row", text: T.parts[key] }), el("td", {}, el("code", { text: value }), extra || null)));
+      if (value) rows.push(el("tr", {}, el("th", { scope: "row", text: T.parts[key] }), el("td", {}, rawCode(value), extra || null)));
     };
     add("scheme", url.scheme);
     add("username", url.username);
@@ -137,7 +142,7 @@
       const next = followUrl(s);
       return el("li", { class: s.points > 0 || danger ? "hit" : "info" },
         el("span", { class: "pts", "aria-label": danger ? U.ptsDangerLabel : U.ptsLabel(s.points), text: pts }),
-        el("span", { class: "signal-text" }, text,
+        el("span", { class: "signal-text" }, logical(text),
           next ? el("button", { type: "button", class: "btn small follow", text: U.follow, onclick: () => runManual(next) }) : null));
     }));
   }
@@ -148,7 +153,7 @@
     const box = el("section", { class: "payload" }, el("h3", { text: `${P.heading}: ${P.types[p.type]}` }));
     if (p.fields.length) {
       const rows = p.fields.map((f) => el("tr", {}, el("th", { scope: "row", text: P.fields[f.key] }),
-        el("td", {}, f.secret ? secretView(f.value) : el("code", { text: P.value(f.key, f.value) }))));
+        el("td", {}, f.secret ? secretView(f.value) : rawCode(P.value(f.key, f.value)))));
       box.append(el("table", { class: "parts" }, el("tbody", {}, rows)));
     }
     if (p.notes.length) box.append(el("ul", { class: "notes" }, p.notes.map((n) => el("li", { text: P.notes[n] }))));
@@ -156,7 +161,7 @@
       box.append(el("h4", { text: P.urlsHeading }), el("ul", { class: "payload-urls" }, p.urls.map((u) => {
         const a = C.analyze(u);
         const level = displayLevel(a, C.score(a), a.kind === "url" && isTrusted(a.url));
-        return el("li", {}, levelBadge(level), " ", el("code", { text: u }),
+        return el("li", {}, levelBadge(level), " ", rawCode(u),
           el("button", { type: "button", class: "btn small follow", text: U.follow, onclick: () => runManual(u) }));
       })));
     }
@@ -166,12 +171,12 @@
   // パスワード・秘密鍵は伏せて出し、ボタンで見せる
   function secretView(value) {
     const P = T.payload, n = [...value].length;
-    const code = el("code", { text: P.mask(n) });
+    const code = el("code", { class: "logical", text: P.mask(n) });
     const btn = el("button", { type: "button", class: "btn small", "aria-pressed": "false", text: P.reveal });
     btn.addEventListener("click", () => {
       const on = btn.getAttribute("aria-pressed") !== "true";
       btn.setAttribute("aria-pressed", String(on));
-      code.textContent = on ? value : P.mask(n);
+      code.replaceChildren(...(on ? logical(value) : [P.mask(n)]));
       btn.textContent = on ? P.hide : P.reveal;
     });
     return [code, " ", btn];
@@ -192,7 +197,13 @@
       : level === "low" ? T.levelNote.low(missRate) : T.levelNote[level];
 
     const blocks = [head, el("p", { class: "level-note", text: note }),
-      el("div", { class: "input-echo" }, el("span", { class: "muted", text: U.content }), el("code", { text: analyzed.input }))];
+      el("div", { class: "input-echo" }, el("span", { class: "muted", text: U.content }), rawCode(analyzed.input))];
+    // 日本語・見えない文字などを含む中身は、WeirdString Inspector（Day023）で1文字ずつ見られる（中身は URL の # の後ろ）
+    const inspect = C.inspectorUrl(analyzed.input);
+    if (inspect) {
+      blocks.push(el("p", { class: "inspect" }, el("a", { class: "btn small", href: inspect, target: "_blank", rel: "noopener noreferrer",
+        text: U.inspect }), el("span", { class: "hint", text: U.inspectHint })));
+    }
     if (analyzed.kind === "url") {
       const u = analyzed.url;
       blocks.push(el("p", { class: "owner" }, el("span", { class: "muted", text: u.ip ? U.ownerIp : U.owner }),
@@ -203,7 +214,10 @@
     const payload = window.QRPayload.parse(analyzed.input);
     if (payload) blocks.push(payloadView(payload));
     // URL 以外の中身（other）は、種類を読み解けたら兆候の欄（スキームの説明だけ）を出さない
-    if (analyzed.kind !== "text" && !(level === "other" && payload)) blocks.push(el("h3", { text: U.signalsHeading }), signalList(scored, trustedHere));
+    const hidden = scored.signals.some((x) => x.id === "bidi" || x.id === "invisible");
+    if ((analyzed.kind !== "text" && !(level === "other" && payload)) || hidden) {
+      blocks.push(el("h3", { text: U.signalsHeading }), signalList(scored, trustedHere));
+    }
     blocks.push(el("div", { class: "qr-make" },
       el("button", { type: "button", class: "btn", text: U.makeQr, onclick: (e) => makeQr(analyzed.input, e.currentTarget.parentElement) })));
     const box = $("result");

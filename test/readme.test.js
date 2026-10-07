@@ -73,13 +73,15 @@ test("SCORING.md の兆候と TLD の表が js/model.js と一致する", () => 
 test("README のサンプルの表が js/samples.js と計算部の判定に一致する（実物の文字のまま）", () => {
   const items = globalThis.QRSamples.flatMap((g) => g.items.map((s) => ({ ...s, group: g.group })));
   const rows = table(README, "| 分類 | サンプル | 中身 | 判定 |");
-  assert.deepEqual(rows, items.map((s) => [s.group, s.title, "`" + s.url + "`", judge(s.url)]));
+  assert.deepEqual(rows, items.map((s) => [s.group, s.title, "`" + C.labelControls(s.url) + "`", judge(s.url)]));
   assert.ok(README.includes(`ある${items.length}個です`) && README.includes(`手口ごとに${items.length}個`));
   // samples/qr/ と test/qr/ の表: ファイルが実在し、判定は中身から計算したもの
   const qr = README.split("### 読み取りの試験に使えるQRコードの画像")[1];
   const lists = [table(qr, "| ファイル | 中身 | 判定 |"), table(qr.split("`test/qr/`にも")[1], "| ファイル | 中身 | 判定 |")];
   assert.deepEqual(lists[0].map((r) => unquote(r[0])), fs.readdirSync(root("samples/qr/")).sort().map((f) => "samples/qr/" + f));
-  for (const r of [...lists[0], ...lists[1]]) {
+  const withQr = items.filter((s) => s.qr).sort((a, b) => a.qr - b.qr);
+  assert.deepEqual(lists[0].map((r) => r.slice(1)), withQr.map((s) => ["`" + C.labelControls(s.url) + "`", judge(s.url)]));
+  for (const r of lists[1]) {
     for (const f of r[0].split("・").map(unquote)) {
       const path = f.startsWith(".") ? unquote(r[0].split("・")[0]).replace(/\.png$/, f) : f;
       assert.ok(fs.existsSync(root(path)), path);
@@ -187,11 +189,14 @@ test("README.en.md の表（判定の確かさ・サンプル・QR コードの�
   assert.deepEqual(rows, M.evaluation.map((e) => [e.id === "legit" ? "Official login pages" : EN.evaluation[e.id].name,
     e.n.toLocaleString("en-US"), pct(e.medium), pct(e.high), EN.evaluation[e.id].kind === "phish" ? "Detected" : "Wrongly flagged"]));
   const items = globalThis.QRSamples.flatMap((g) => g.items.map((s) => ({ ...s, groupEn: g.groupEn })));
-  assert.deepEqual(table(README_EN, "| Group | Sample | Content | Result |"), items.map((s) => [s.groupEn, s.titleEn, "`" + s.url + "`", judgeEn(s.url)]));
+  assert.deepEqual(table(README_EN, "| Group | Sample | Content | Result |"),
+    items.map((s) => [s.groupEn, s.titleEn, "`" + C.labelControls(s.url) + "`", judgeEn(s.url)]));
   const qr = README_EN.split("### QR code images for testing the reader")[1];
   const lists = [table(qr, "| File | Content | Result |"), table(qr.split("`test/qr/` also has")[1], "| File | Content | Result |")];
   assert.deepEqual(lists[0].map((r) => unquote(r[0])), fs.readdirSync(root("samples/qr/")).sort().map((f) => "samples/qr/" + f));
-  for (const r of [...lists[0], ...lists[1]]) assert.equal(r[2], judgeEn(unquote(r[1])), r[1]);
+  const withQr = items.filter((s) => s.qr).sort((a, b) => a.qr - b.qr);
+  assert.deepEqual(lists[0].map((r) => r.slice(1)), withQr.map((s) => ["`" + C.labelControls(s.url) + "`", judgeEn(s.url)]));
+  for (const r of lists[1]) assert.equal(r[2], judgeEn(unquote(r[1])), r[1]);
   for (const r of lists[1]) for (const ext of [".png", ".svg"]) assert.ok(fs.existsSync(root(unquote(r[0].split(", ")[0]).replace(/\.png$/, ext))), r[0]);
   // 件数の記述
   const miss = (100 - M.evaluation.find((e) => e.id === "jpcert").medium).toFixed(1);

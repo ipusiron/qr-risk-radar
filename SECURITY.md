@@ -7,6 +7,7 @@ QR Risk Radarが実装している安全対策と、問題を見つけたとき�
 - 入力したURL・文字、読み取ったQRコードの中身、選んだ画像は、ブラウザーの外へ送らない。URLを開くこともしない（画面にリンクとして置かない）
 - 判定に使うデータ（公開接尾辞の一覧・点数）は、すべてリポジトリーの中のファイルから読む
 - 外部のサーバーに問い合わせる機能（ドメインの登録日、通報済みの一覧など）は持たない
+- 「WeirdString Inspectorで1文字ずつ見る」を押したときだけ、同じサイトのWeirdString Inspector（Day023）を新しいタブで開き、中身をURLの#の後ろに入れて渡す（`rel="noopener noreferrer"`）。#の後ろはサーバーへ送られないが、開いたタブのURLとブラウザーの履歴には残る。日本語や見えない文字を含まない中身では、このボタンを出さない
 
 ## Content Security Policy
 
@@ -32,6 +33,7 @@ default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: bl
 ## 描画
 
 - 入力やQRコードの中身は`textContent`で描画する。`innerHTML`・`eval`・`new Function`を使わない（`test/html.test.js`が検査する）
+- 向きを変える文字（RLOなど）と見えない文字は、`[RLO U+202E]`のような印に置き換えて描画する。生の中身を出す欄は`unicode-bidi: bidi-override; direction: ltr`で並び順どおりに表示し、表示の反転で中身を偽れないようにする
 - 調べる中身にURLが含まれていても、`<a>`にしない。行き先を開くには、利用者が自分でコピーする必要がある
 
 ## 保存するもの

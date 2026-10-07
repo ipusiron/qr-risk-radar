@@ -147,6 +147,55 @@
 
   const DANGER_SCHEMES = ["javascript:", "vbscript:", "data:", "file:"];
 
+  // 文字の向きを変える制御文字（Unicode の双方向アルゴリズムの書式文字）
+  const BIDI = { 0x202a: "LRE", 0x202b: "RLE", 0x202c: "PDF", 0x202d: "LRO", 0x202e: "RLO", 0x2066: "LRI", 0x2067: "RLI",
+    0x2068: "FSI", 0x2069: "PDI", 0x200e: "LRM", 0x200f: "RLM", 0x061c: "ALM" };
+  // 見えない文字（幅のない文字・ハングルの埋め草・ソフトハイフンなど）。タグ文字（U+E0000〜E007F）と C0・C1 の制御文字も数える
+  const INVISIBLE = { 0x200b: "ZWSP", 0x200c: "ZWNJ", 0x200d: "ZWJ", 0x2060: "WJ", 0xfeff: "BOM", 0x00ad: "SHY", 0x180e: "MVS",
+    0x034f: "CGJ", 0x2061: "FA", 0x2062: "IT", 0x2063: "IS", 0x2064: "IP", 0x3164: "HF", 0x115f: "HCF", 0x1160: "HJF", 0xffa0: "HWHF" };
+  const C0 = { 0: "NUL", 9: "TAB", 10: "LF", 13: "CR", 27: "ESC", 127: "DEL" };
+
+  const hexOf = (cp) => "U+" + cp.toString(16).toUpperCase().padStart(4, "0");
+  // 1文字の種類: "bidi"・"invisible"・"newline"（LF・CR・TAB は文の区切りとして普通に使う）・null（ふつうの文字）
+  function controlKind(cp) {
+    if (BIDI[cp]) return "bidi";
+    if (cp === 9 || cp === 10 || cp === 13) return "newline";
+    if (INVISIBLE[cp] || (cp >= 0xe0000 && cp <= 0xe007f) || cp < 0x20 || (cp >= 0x7f && cp <= 0x9f)) return "invisible";
+    return null;
+  }
+  const controlName = (cp) => BIDI[cp] || INVISIBLE[cp] || C0[cp] || (cp >= 0xe0000 && cp <= 0xe007f ? "TAG" : "CTRL");
+
+  // 表示用に、向きを変える文字・見えない文字を印（{ name, code }）に分ける。改行と TAB はそのまま残す
+  function splitControls(text) {
+    const out = [];
+    let buf = "";
+    for (const ch of String(text)) {
+      const cp = ch.codePointAt(0);
+      const kind = controlKind(cp);
+      if (kind === "bidi" || kind === "invisible") {
+        if (buf) { out.push({ text: buf }); buf = ""; }
+        out.push({ name: controlName(cp), code: hexOf(cp), kind });
+      } else buf += ch;
+    }
+    if (buf) out.push({ text: buf });
+    return out;
+  }
+  // 文字列にして返す（README の表・説明文用）: 制御文字を [RLO U+202E] の形にする
+  const labelControls = (text) => splitControls(text).map((x) => (x.text !== undefined ? x.text : `[${x.name} ${x.code}]`)).join("");
+
+  // WeirdString Inspector（Day023）で1文字ずつ見るためのリンク。中身は URL の # の後ろに入れる（サーバーへ送られない）。
+  // ASCII の印字できる文字だけの中身は null（Day023 で見る意味が薄い）。入力欄が保持できない CR を含むときはエスケープの形で渡す
+  const INSPECTOR = "https://ipusiron.github.io/weirdstring-inspector/";
+  function inspectorUrl(text) {
+    const t = String(text == null ? "" : text);
+    if (!t || /^[\x20-\x7e\n\t]*$/.test(t)) return null;
+    if (t.includes("\r")) {
+      const escaped = t.replace(/\\/g, "\\\\").replace(/\r/g, "\\r");
+      return INSPECTOR + "#" + new URLSearchParams({ v: "2", mode: "escape", text: escaped }).toString();
+    }
+    return INSPECTOR + "#" + new URLSearchParams({ text: t, source: "qr-risk-radar" }).toString();
+  }
+
   // ラベルを語に切る（. - _ と数字の境目）
   const wordsOf = (s) => String(s).toLowerCase().split(/[^a-z]+/).filter(Boolean);
 
@@ -191,6 +240,11 @@
     const text = String(input == null ? "" : input).trim();
     const out = { kind: "text", input: text, url: null, signals: [] };
     const add = (id, detail) => out.signals.push({ id, detail: detail || {} });
+    // 向きを変える文字・見えない文字は、URL の解析の前に元の文字列で数える（ホスト名の中の見えない文字は解析で消えるため）
+    const marks = { bidi: new Set(), invisible: new Set() };
+    for (const x of splitControls(text)) if (x.kind) marks[x.kind].add(`${x.name} ${x.code}`);
+    if (marks.bidi.size) add("bidi", { chars: [...marks.bidi] });
+    if (marks.invisible.size) add("invisible", { chars: [...marks.invisible] });
     const lower = text.toLowerCase();
     const danger = DANGER_SCHEMES.find((s) => lower.startsWith(s));
     if (danger) {
@@ -331,6 +385,8 @@
     const seen = new Set();
     const scored = result.signals.map((s) => {
       let p = s.id === "tld" ? (m.tldPoints[s.detail.tld] || 0) : (m.points[s.id] || 0);
+      // URL でない中身（Wi-Fi の設定・文など）は点数を付けない（兆候は参考として出す）
+      if (result.kind !== "url") p = 0;
       if (seen.has(s.id)) p = 0;
       seen.add(s.id);
       total += p;
@@ -345,6 +401,6 @@
   root.QRRiskCore = {
     BRANDS, SHORTENERS, BAIT_WORDS, DOWNLOAD_EXT,
     publicSuffix, registrableDomain, decodePunycodeLabel, hostToUnicode, consonantRun, withinOneEdit, unconfuse, scriptMix,
-    analyze, score, _resetPsl: () => { pslIndex = null; },
+    analyze, score, splitControls, labelControls, inspectorUrl, INSPECTOR, _resetPsl: () => { pslIndex = null; },
   };
 })(typeof globalThis !== "undefined" ? globalThis : this);
