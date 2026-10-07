@@ -300,6 +300,7 @@ qr-risk-radar/
 ├── js/                                   # 画面から読むスクリプト
 │   ├── messages.js                       # 画面の文言と兆候の説明（日本語）
 │   ├── model.js                          # 生成物：兆候の点数・境目・評価（tools/calibrate.mjsが作る）
+│   ├── payload-core.js                   # 計算部：QRコードの中身の種類（Wi-Fi・電話・SMS・連絡先など）
 │   ├── psl-data.js                       # 生成物：公開接尾辞の一覧（tools/build-psl.mjsが作る）
 │   ├── qr-worker.js                      # 生成物：QRコードのデコーダー（tools/build-worker.mjsが作る）
 │   ├── samples.js                        # 学習用のサンプル（画面のボタンとsamples/qr/の元）
@@ -320,6 +321,7 @@ qr-risk-radar/
 │   ├── format.test.js                    # 行の長さ、app.jsに日本語の文字列がないこと
 │   ├── html.test.js                      # index.htmlとCSP、タブ、配色のコントラスト比
 │   ├── load.js                           # テストで計算部を読み込む
+│   ├── payload.test.js                   # 中身の種類の既知解答（Wi-Fiのエスケープ・vCardの折り返しなど）
 │   ├── psl.test.js                       # 公開接尾辞の一覧（公式のテストベクター・生成物）
 │   ├── qr/                               # 以前から置いている試験用のQRコード
 │   │   ├── 01_homograph_attack.png       # キリル文字のаmazon.com（PNG）
