@@ -1,0 +1,4 @@
+# 外部のライブラリーとデータは配布物と同じバイト列のまま置く（改行を変換しない）
+vendor/** -text
+tools/public_suffix_list.dat -text
+test/test_psl.txt -text

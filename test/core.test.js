@@ -48,7 +48,8 @@ test("危険なスキームは点に関係なく「高」。URL でない文字�
 
 test("URL を部品に分ける: 既定のポートは消え、登録ドメインと公開接尾辞の区分が出る", () => {
   const a = C.analyze("https://Login.Example.co.jp:443/a/b?x=1#y");
-  assert.deepEqual([a.url.host, a.url.port, a.url.registrable, a.url.suffix, a.url.suffixSection], ["login.example.co.jp", "", "example.co.jp", "co.jp", "icann"]);
+  assert.deepEqual([a.url.host, a.url.port, a.url.registrable, a.url.suffix, a.url.suffixSection],
+    ["login.example.co.jp", "", "example.co.jp", "co.jp", "icann"]);
   assert.ok(!ids(a).includes("port"));
   assert.ok(ids(C.analyze("http://example.com:8080/")).includes("port"));
   assert.ok(!ids(C.analyze("http://example.com:80/login")).includes("port"));

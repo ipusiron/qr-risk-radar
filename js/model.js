@@ -41,6 +41,168 @@ globalThis.QRModel = {
     "phishing": 3221,
     "benign": 525
   },
+  "stats": {
+    "http": {
+      "phish": 52,
+      "benign": 4,
+      "source": "data"
+    },
+    "ip-host": {
+      "phish": 5,
+      "benign": 0,
+      "source": "rule"
+    },
+    "userinfo": {
+      "phish": 0,
+      "benign": 0,
+      "source": "rule"
+    },
+    "port": {
+      "phish": 0,
+      "benign": 0,
+      "source": "rule"
+    },
+    "hosting": {
+      "phish": 134,
+      "benign": 0,
+      "source": "data+cap2"
+    },
+    "shortener": {
+      "phish": 1,
+      "benign": 0,
+      "source": "rule"
+    },
+    "idn": {
+      "phish": 0,
+      "benign": 1,
+      "source": "rule"
+    },
+    "idn-mixed": {
+      "phish": 0,
+      "benign": 0,
+      "source": "rule"
+    },
+    "brand-other-tld": {
+      "phish": 2,
+      "benign": 0,
+      "source": "rule"
+    },
+    "brand-in-domain": {
+      "phish": 23,
+      "benign": 1,
+      "source": "data"
+    },
+    "lookalike": {
+      "phish": 0,
+      "benign": 0,
+      "source": "rule"
+    },
+    "fake-official": {
+      "phish": 7,
+      "benign": 0,
+      "source": "rule"
+    },
+    "bait-domain": {
+      "phish": 23,
+      "benign": 0,
+      "source": "data"
+    },
+    "brand-in-subdomain": {
+      "phish": 36,
+      "benign": 3,
+      "source": "data"
+    },
+    "brand-in-path": {
+      "phish": 143,
+      "benign": 0,
+      "source": "data+cap1"
+    },
+    "bait-subdomain": {
+      "phish": 245,
+      "benign": 1,
+      "source": "data+cap2"
+    },
+    "bait-path": {
+      "phish": 561,
+      "benign": 2,
+      "source": "data+cap1"
+    },
+    "hyphens": {
+      "phish": 425,
+      "benign": 2,
+      "source": "data+cap2"
+    },
+    "deep-subdomain": {
+      "phish": 1,
+      "benign": 3,
+      "source": "rule"
+    },
+    "digits-mixed": {
+      "phish": 541,
+      "benign": 10,
+      "source": "data+cap2"
+    },
+    "random-label": {
+      "phish": 932,
+      "benign": 14,
+      "source": "data+cap2"
+    },
+    "download": {
+      "phish": 19,
+      "benign": 0,
+      "source": "data+cap1"
+    },
+    "embedded-url": {
+      "phish": 2,
+      "benign": 0,
+      "source": "rule+cap1"
+    },
+    "base64": {
+      "phish": 0,
+      "benign": 0,
+      "source": "rule+cap1"
+    },
+    "double-encoding": {
+      "phish": 1,
+      "benign": 0,
+      "source": "rule+cap1"
+    },
+    "long": {
+      "phish": 34,
+      "benign": 0,
+      "source": "data+cap1"
+    }
+  },
+  "tldStats": {
+    "top": {
+      "phish": 202,
+      "benign": 0
+    },
+    "cn": {
+      "phish": 562,
+      "benign": 0
+    },
+    "cfd": {
+      "phish": 100,
+      "benign": 0
+    },
+    "info": {
+      "phish": 33,
+      "benign": 1
+    },
+    "dev": {
+      "phish": 33,
+      "benign": 0
+    },
+    "cc": {
+      "phish": 34,
+      "benign": 0
+    },
+    "app": {
+      "phish": 35,
+      "benign": 0
+    }
+  },
   "evaluation": [
     {
       "id": "jpcert",

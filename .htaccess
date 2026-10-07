@@ -1,43 +1,22 @@
-# Security Headers for Apache
+# Apache に置くときのヘッダー（GitHub Pages はこのファイルを使わない。CSP は index.html の meta と同じ値に frame-ancestors を足したもの）
 <IfModule mod_headers.c>
-    # Content Security Policy
-    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self'; connect-src 'self'; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self';"
-    
-    # Prevent MIME type sniffing
+    Header always set Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; media-src 'self' blob:; worker-src blob:; base-uri 'none'; form-action 'none'; object-src 'none'; frame-ancestors 'none'"
     Header always set X-Content-Type-Options "nosniff"
-    
-    # Prevent clickjacking
-    Header always set X-Frame-Options "DENY"
-    
-    # XSS Protection
-    Header always set X-XSS-Protection "1; mode=block"
-    
-    # Referrer Policy
-    Header always set Referrer-Policy "strict-origin-when-cross-origin"
-    
-    # Strict Transport Security (HSTS) - only if using HTTPS
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
-    
-    # Permissions Policy
-    Header always set Permissions-Policy "camera=*, microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), accelerometer=(), gyroscope=()"
+    Header always set Referrer-Policy "no-referrer"
+    # カメラはこのページ自身だけに許す
+    Header always set Permissions-Policy "camera=(self), microphone=(), geolocation=(), payment=(), usb=()"
 </IfModule>
 
-# Cache Control
 <IfModule mod_expires.c>
     ExpiresActive On
-    ExpiresByType text/css "access plus 1 month"
-    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/css "access plus 1 day"
+    ExpiresByType application/javascript "access plus 1 day"
     ExpiresByType text/html "access plus 1 hour"
 </IfModule>
 
-# Disable server signature
-ServerSignature Off
-
-# Disable directory browsing
 Options -Indexes
 
-# Protect sensitive files
-<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|sql|conf)$">
-    Order Allow,Deny
-    Deny from all
+# 作業用のファイルを配らない
+<FilesMatch "\.(htaccess|htpasswd|ini|log|sh|sql|conf|mjs)$">
+    Require all denied
 </FilesMatch>

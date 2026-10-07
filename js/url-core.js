@@ -272,6 +272,8 @@
     if (ext && DOWNLOAD_EXT.includes(ext.toLowerCase())) add("download", { ext: ext.toLowerCase() });
     const embedded = (u.query + u.fragment).match(/(?:^|[?&#=])(https?(?::|%3A)(?:\/|%2F){2}[^&#]+)/i);
     if (embedded) add("embedded-url", { url: decodeURIComponentSafe(embedded[1]) });
+    const b64 = base64Hidden(u.query + u.fragment);
+    if (b64) add("base64", { encoded: b64.encoded, decoded: b64.decoded });
     if (/%25[0-9a-f]{2}/i.test(text)) add("double-encoding");
     if (text.length > 150) add("long", { length: text.length });
     return out;
@@ -279,6 +281,20 @@
 
   // 無作為な文字列らしいラベルの境目（子音がこの数以上続く）
   const RANDOM_RUN = 4;
+
+  // クエリ・フラグメントの中の、Base64 で書いた URL やメールアドレス（12文字以上で、戻すと印字できる ASCII になるもの）
+  function base64Hidden(part) {
+    for (const token of decodeURIComponentSafe(part).split(/[?&#=]/)) {
+      if (!/^[A-Za-z0-9+/_-]{12,}$/.test(token) || !/[0-9+/_-]|[A-Z].*[a-z]/.test(token)) continue;
+      let decoded;
+      try {
+        const std = token.replace(/-/g, "+").replace(/_/g, "/").replace(/=+$/, "");
+        decoded = atob(std + "===".slice((std.length + 3) % 4));
+      } catch (e) { continue; }
+      if (/^[ -~]+$/.test(decoded) && /https?:\/\/|^[^@\s]+@[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(decoded)) return { encoded: token, decoded };
+    }
+    return null;
+  }
 
   function decodeURIComponentSafe(s) {
     try { return decodeURIComponent(s); } catch (e) { return s; }

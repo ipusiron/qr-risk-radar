@@ -50,11 +50,13 @@ const sets = {
 
 // ---------- 兆候の点数 ----------
 const analyzed = Object.fromEntries(Object.entries(sets).map(([k, v]) => [k, v.map((u) => C.analyze(u))]));
-const IDS = ["http", "ip-host", "userinfo", "port", "hosting", "shortener", "idn", "idn-mixed", "brand-other-tld", "brand-in-domain", "lookalike", "fake-official", "bait-domain",
-  "brand-in-subdomain", "brand-in-path", "bait-subdomain", "bait-path", "hyphens", "deep-subdomain", "digits-mixed", "random-label", "download",
-  "embedded-url", "double-encoding", "long"];
+const IDS = [
+  "http", "ip-host", "userinfo", "port", "hosting", "shortener", "idn", "idn-mixed", "brand-other-tld", "brand-in-domain",
+  "lookalike", "fake-official", "bait-domain", "brand-in-subdomain", "brand-in-path", "bait-subdomain", "bait-path", "hyphens",
+  "deep-subdomain", "digits-mixed", "random-label", "download", "embedded-url", "base64", "double-encoding", "long",
+];
 // パス・クエリを見る兆候（人気サイトのデータはトップページだけなので誤検知を測れない＝上限1点）
-const PATH_SIGNALS = new Set(["brand-in-path", "bait-path", "download", "embedded-url", "long", "double-encoding"]);
+const PATH_SIGNALS = new Set(["brand-in-path", "bait-path", "download", "embedded-url", "base64", "long", "double-encoding"]);
 // それだけで「中」にならないよう上限2点にする兆候（登録ドメインの形・ホスティング・http など、正規のサイトにもある特徴）
 const CAP2 = new Set(["hyphens", "digits-mixed", "random-label", "deep-subdomain", "bait-subdomain", "hosting", "http", "brand-other-tld"]);
 // データにほとんど出ない兆候は規則で決める（理由は SCORING.md の表に書く）
@@ -131,6 +133,9 @@ if (process.argv.includes("--write")) {
     points: Object.fromEntries(Object.entries(points).filter(([, v]) => v > 0)),
     tldPoints, medium: model.medium, high: model.high,
     training: { phishing: nP, benign: nB },
+    // 兆候ごとに、学習用のフィッシング・実在サイトのそれぞれ何件に出たかと、点の決め方（data＝割合の比／rule＝規則、cap＝上限）
+    stats: Object.fromEntries(Object.entries(stats).map(([id, s]) => [id, { phish: s.phish, benign: s.benign, source: s.source }])),
+    tldStats: Object.fromEntries(Object.keys(tldPoints).map((t) => [t, { phish: tp[t], benign: tb[t] || 0 }])),
     evaluation,
   };
   const text = [
