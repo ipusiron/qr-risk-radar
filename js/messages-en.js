@@ -51,6 +51,10 @@
       + "Used to prefill an email address in a form or to hide the destination",
     "double-encoding": () => "Double encoding with %25. Sometimes used to slip past checks",
     "long": (d) => `${d.length} characters long. The destination part is easily pushed off the screen`,
+    "bidi": (d) => `Characters that change text direction (${list(d.chars)}). They reorder what is shown, so a name ending in ".exe" `
+      + 'can look like ".pdf". The content display replaces them with labels',
+    "invisible": (d) => `Invisible characters (${list(d.chars)}). It looks the same, but the content differs. `
+      + "Used to slip past checks or to look identical to a genuine name",
   };
 
   const evaluation = {

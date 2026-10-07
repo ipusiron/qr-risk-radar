@@ -50,7 +50,7 @@ Try it directly in your browser.
 
 - Owner: shows the host name split into the subdomain (light text) and the registrable domain (bold, underlined). The registrable domain is found with the Public Suffix List, so you can see that the owner of `paypal.com.secure-login.example` is `secure-login.example`
 - URL parts: lists the scheme, the part before the @, the host, its display form (internationalized domain names), the public suffix and its section, the subdomain, port, path, query, and fragment
-- Signs and points: looks for 26 kinds of signs and lists the points and an explanation for each. A total of 3 points or more is "Medium" and 4 or more is "High". `javascript:`, `data:`, and similar schemes are always "High"
+- Signs and points: looks for 28 kinds of signs and lists the points and an explanation for each. A total of 3 points or more is "Medium" and 4 or more is "High". `javascript:`, `data:`, and similar schemes are always "High"
 - Hidden destinations: extracts URLs embedded in the query and URLs or email addresses written in Base64, and checks that destination with one button
 - Content types: breaks Wi-Fi settings, phone numbers, SMS, email, contacts (vCard, MECARD), locations, two-factor authentication keys, crypto payment addresses, events, and app launches into fields. Shows notes such as unencrypted Wi-Fi, paid information lines, and two-factor secrets, and checks the URLs inside. Passwords and secret keys are masked and shown only when you press a button
 - Read QR codes: from the camera (the rear camera on phones) or an image file. When nothing can be read, the previous result is cleared and the reason is shown
@@ -312,6 +312,7 @@ qr-risk-radar/
 │       ├── 10_otp.png                    # Two-factor authentication key
 │       └── 11_sms.png                    # SMS with a URL in the message
 ├── test/                                 # Automated tests (node --test) and test images
+│   ├── controls.test.js                  # Direction and invisible characters, labels, Day023 link
 │   ├── core.test.js                      # Signals and points, shape of model.js
 │   ├── format.test.js                    # Line lengths, no Japanese strings in app.js
 │   ├── html.test.js                      # index.html and CSP, tabs, color contrast

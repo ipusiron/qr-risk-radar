@@ -53,7 +53,7 @@ const analyzed = Object.fromEntries(Object.entries(sets).map(([k, v]) => [k, v.m
 const IDS = [
   "http", "ip-host", "userinfo", "port", "hosting", "shortener", "idn", "idn-mixed", "brand-other-tld", "brand-in-domain",
   "lookalike", "fake-official", "bait-domain", "brand-in-subdomain", "brand-in-path", "bait-subdomain", "bait-path", "hyphens",
-  "deep-subdomain", "digits-mixed", "random-label", "download", "embedded-url", "base64", "double-encoding", "long",
+  "deep-subdomain", "digits-mixed", "random-label", "download", "embedded-url", "base64", "double-encoding", "long", "bidi", "invisible",
 ];
 // パス・クエリを見る兆候（人気サイトのデータはトップページだけなので誤検知を測れない＝上限1点）
 const PATH_SIGNALS = new Set(["brand-in-path", "bait-path", "download", "embedded-url", "base64", "long", "double-encoding"]);
@@ -61,7 +61,7 @@ const PATH_SIGNALS = new Set(["brand-in-path", "bait-path", "download", "embedde
 const CAP2 = new Set(["hyphens", "digits-mixed", "random-label", "deep-subdomain", "bait-subdomain", "hosting", "http", "brand-other-tld"]);
 // データにほとんど出ない兆候は規則で決める（理由は SCORING.md の表に書く）
 const EXPERT = { "userinfo": 4, "ip-host": 3, "idn-mixed": 4, "port": 1, "download": 1, "double-encoding": 1, "lookalike": 3,
-  "shortener": 1, "embedded-url": 1, "fake-official": 4 };
+  "shortener": 1, "embedded-url": 1, "fake-official": 4, "bidi": 4, "invisible": 3 };
 
 const nP = sets.trainPhish.length, nB = sets.trainBenign.length;
 const has = (r, id) => r.signals.some((s) => s.id === id);

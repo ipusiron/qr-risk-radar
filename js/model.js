@@ -24,7 +24,9 @@ globalThis.QRModel = {
     "download": 1,
     "embedded-url": 1,
     "double-encoding": 1,
-    "long": 1
+    "long": 1,
+    "bidi": 4,
+    "invisible": 3
   },
   "tldPoints": {
     "top": 2,
@@ -171,6 +173,16 @@ globalThis.QRModel = {
       "phish": 34,
       "benign": 0,
       "source": "data+cap1"
+    },
+    "bidi": {
+      "phish": 0,
+      "benign": 0,
+      "source": "rule"
+    },
+    "invisible": {
+      "phish": 0,
+      "benign": 0,
+      "source": "rule"
     }
   },
   "tldStats": {
