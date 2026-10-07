@@ -19,7 +19,7 @@ test("CSP: 外部のサーバーを許さない。meta と .htaccess で同じ�
 test("HTML: スクリプトはすべて同じ場所から、決まった順で読む。インラインのスクリプト・style 属性・on 属性なし", () => {
   const scripts = [...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)];
   assert.deepEqual(scripts.map((m) => (m[1].match(/src="([^"]+)"/) || [])[1]), [
-    "js/psl-data.js", "js/model.js", "js/url-core.js", "js/messages.js", "js/samples.js",
+    "js/psl-data.js", "js/model.js", "js/url-core.js", "js/payload-core.js", "js/messages.js", "js/samples.js",
     "vendor/qr-scanner/qr-scanner.umd.min.js", "js/qr-worker.js", "vendor/qrcode-generator/qrcode.js", "app.js"]);
   for (const m of scripts) {
     assert.equal(m[2].trim(), "", "インラインのスクリプト");

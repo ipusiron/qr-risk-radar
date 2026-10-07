@@ -44,6 +44,7 @@
           <button type="button" id="stopCameraBtn" class="btn" disabled>カメラを止める</button>
           <label class="btn file-btn">画像を選ぶ<input type="file" id="fileInput" accept="image/*" /></label>
         </div>
+        <p id="dropZone" class="drop-zone">画像をここにドロップするか、Ctrl+V（Macは⌘+V）で貼り付けても読めます。リンクをドロップすると、そのURLを判定します。</p>
         <p id="qrStatus" class="status" role="status"></p>
         <div id="cameraBox" class="camera-box" hidden>
           <video id="preview" playsinline muted></video>
@@ -90,6 +91,7 @@
     <script src="js/psl-data.js"></script>
     <script src="js/model.js"></script>
     <script src="js/url-core.js"></script>
+    <script src="js/payload-core.js"></script>
     <script src="js/messages.js"></script>
     <script src="js/samples.js"></script>
     <script src="vendor/qr-scanner/qr-scanner.umd.min.js"></script>

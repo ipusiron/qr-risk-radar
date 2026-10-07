@@ -128,6 +128,41 @@
     }));
   }
 
+  // QR コードの中身の種類（Wi-Fi・電話・SMS・連絡先など）を項目の表・注意・中の URL にして見せる
+  function payloadView(p) {
+    const P = T.payload;
+    const box = el("section", { class: "payload" }, el("h3", { text: `${P.heading}: ${P.types[p.type]}` }));
+    if (p.fields.length) {
+      const rows = p.fields.map((f) => el("tr", {}, el("th", { scope: "row", text: P.fields[f.key] }),
+        el("td", {}, f.secret ? secretView(f.value) : el("code", { text: P.value(f.key, f.value) }))));
+      box.append(el("table", { class: "parts" }, el("tbody", {}, rows)));
+    }
+    if (p.notes.length) box.append(el("ul", { class: "notes" }, p.notes.map((n) => el("li", { text: P.notes[n] }))));
+    if (p.urls.length) {
+      box.append(el("h4", { text: P.urlsHeading }), el("ul", { class: "payload-urls" }, p.urls.map((u) => {
+        const a = C.analyze(u);
+        const level = displayLevel(a, C.score(a), a.kind === "url" && isTrusted(a.url));
+        return el("li", {}, levelBadge(level), " ", el("code", { text: u }),
+          el("button", { type: "button", class: "btn small follow", text: U.follow, onclick: () => runManual(u) }));
+      })));
+    }
+    return box;
+  }
+
+  // パスワード・秘密鍵は伏せて出し、ボタンで見せる
+  function secretView(value) {
+    const P = T.payload, n = [...value].length;
+    const code = el("code", { text: P.mask(n) });
+    const btn = el("button", { type: "button", class: "btn small", "aria-pressed": "false", text: P.reveal });
+    btn.addEventListener("click", () => {
+      const on = btn.getAttribute("aria-pressed") !== "true";
+      btn.setAttribute("aria-pressed", String(on));
+      code.textContent = on ? value : P.mask(n);
+      btn.textContent = on ? P.hide : P.reveal;
+    });
+    return [code, " ", btn];
+  }
+
   function renderResult(input, source) {
     const analyzed = C.analyze(input);
     const scored = C.score(analyzed);
@@ -148,7 +183,10 @@
       blocks.push(el("p", { class: "host-line" }, hostView(u)));
       blocks.push(el("details", { class: "parts-box" }, el("summary", { text: U.partsSummary }), partsTable(u)));
     }
-    if (analyzed.kind !== "text") blocks.push(el("h3", { text: U.signalsHeading }), signalList(scored, trustedHere));
+    const payload = window.QRPayload.parse(analyzed.input);
+    if (payload) blocks.push(payloadView(payload));
+    // URL 以外の中身（other）は、種類を読み解けたら兆候の欄（スキームの説明だけ）を出さない
+    if (analyzed.kind !== "text" && !(level === "other" && payload)) blocks.push(el("h3", { text: U.signalsHeading }), signalList(scored, trustedHere));
     blocks.push(el("div", { class: "qr-make" },
       el("button", { type: "button", class: "btn", text: U.makeQr, onclick: (e) => makeQr(analyzed.input, e.currentTarget.parentElement) })));
     const box = $("result");
@@ -340,7 +378,14 @@
   async function onFile(e) {
     const file = e.target.files && e.target.files[0];
     e.target.value = "";
-    if (!file) return;
+    if (file) decodeImageFile(file);
+  }
+
+  // 画像を読む（ファイルの選択・貼り付け・ドロップの共通）。続けて読ませたときは、最後の画像の結果だけを出す
+  let decodeSeq = 0;
+  async function decodeImageFile(file) {
+    const seq = ++decodeSeq;
+    selectTab("qr");
     stopCamera();
     hideResult();
     const img = $("imagePreview");
@@ -351,10 +396,47 @@
     $("imageBox").hidden = false;
     qrStatus(U.qrReading);
     try {
-      onDecoded(await decodeFile(file));
+      const text = await decodeFile(file);
+      if (seq === decodeSeq) onDecoded(text);
     } catch (err) {
-      qrStatus(U.qrNotFound, true);
+      if (seq === decodeSeq) qrStatus(U.qrNotFound, true);
     }
+  }
+
+  // ---------- 貼り付けとドロップ ----------
+  // 画像なら QR コードとして読み、文字（リンクのドロップ・入力欄の外での貼り付け）なら判定する
+  const imageOf = (dt) => {
+    const files = [...(dt.files || [])];
+    for (const item of dt.items || []) if (item.kind === "file") files.push(item.getAsFile());
+    return files.find((f) => f && /^image\//.test(f.type)) || null;
+  };
+  const isEditable = (node) => !!node && (node.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(node.tagName));
+  function setupPasteAndDrop() {
+    document.addEventListener("paste", (e) => {
+      const dt = e.clipboardData;
+      if (!dt) return;
+      const image = imageOf(dt);
+      if (image) { e.preventDefault(); decodeImageFile(image); return; }
+      const text = dt.getData("text/plain");
+      if (!isEditable(document.activeElement) && text.trim()) { e.preventDefault(); runManual(text.trim()); }
+    });
+    document.addEventListener("dragover", (e) => {
+      if (!e.dataTransfer) return;
+      e.preventDefault();
+      document.body.classList.add("dragging");
+    });
+    document.addEventListener("dragleave", (e) => { if (!e.relatedTarget) document.body.classList.remove("dragging"); });
+    document.addEventListener("drop", (e) => {
+      document.body.classList.remove("dragging");
+      const dt = e.dataTransfer;
+      if (!dt) return;
+      e.preventDefault();
+      const image = imageOf(dt);
+      if (image) { decodeImageFile(image); return; }
+      const uri = (dt.getData("text/uri-list") || "").split(/\r?\n/).find((l) => l.trim() && !l.startsWith("#"));
+      const text = (uri || dt.getData("text/plain") || "").trim();
+      if (text) runManual(text);
+    });
   }
 
   // ---------- 判定の確かさ（js/model.js の evaluation を、見抜けた割合と誤って疑った割合の2つの表にする） ----------
@@ -377,6 +459,7 @@
     renderSamples();
     renderAccuracy();
     setupTabs();
+    setupPasteAndDrop();
     $("analyzeBtn").addEventListener("click", () => {
       const v = $("payload").value;
       if (!v.trim()) { $("manualStatus").textContent = U.emptyInput; hideResult(); return; }

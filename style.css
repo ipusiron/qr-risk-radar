@@ -206,6 +206,32 @@ textarea { font-family: ui-monospace, Consolas, monospace; resize: vertical; }
 .qr-out img { background: #fff; border: 1px solid var(--border); border-radius: 6px; image-rendering: pixelated; }
 .qr-out .hint { flex-basis: 100%; }
 
+/* QR を読む（貼り付け・ドロップ） */
+.drop-zone {
+  border: 2px dashed var(--border);
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  margin: 0.75rem 0;
+  text-align: center;
+  color: var(--muted);
+}
+body.dragging .drop-zone { border-color: var(--accent); background: var(--low-bg); color: var(--low-fg); }
+body.dragging main { outline: 3px dashed var(--accent); outline-offset: 4px; }
+
+/* 中身の種類 */
+.payload h3 { font-size: 1.05rem; margin: 1rem 0 0.4rem; }
+.payload h4 { font-size: 0.95rem; margin: 0.8rem 0 0.3rem; }
+.notes {
+  margin: 0.6rem 0;
+  padding: 0.5rem 0.75rem 0.5rem 1.6rem;
+  border-radius: 6px;
+  background: var(--medium-bg);
+  color: var(--medium-fg);
+}
+.notes li { margin: 0.2rem 0; }
+.payload-urls { list-style: none; padding: 0; margin: 0; }
+.payload-urls li { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; padding: 0.35rem 0; border-top: 1px solid var(--border); }
+
 /* QR を読む */
 .camera-box { position: relative; margin: 0.75rem 0; border-radius: 8px; overflow: hidden; background: #000; }
 .camera-box video { display: block; width: 100%; max-height: 60vh; object-fit: contain; }

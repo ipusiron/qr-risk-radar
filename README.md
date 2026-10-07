@@ -91,7 +91,7 @@ hub: true
 - QRコードを作る：調べた中身をQRコードのPNGにする。訓練の資料や、読み取りの試験に使える
 - 判定の確かさ：学習に使っていないデータで測った「見抜けた割合」と「誤って疑った割合」を画面に載せる
 - 自分で信頼するドメイン：社内のサイトなど、自分で確かめた登録ドメインを登録すると「信頼済み」と出る。公開接尾辞（`co.jp`・`pages.dev`など）は登録できない
-- サンプル：手口ごとに18個。押すと入力欄に入り、そのまま判定する
+- サンプル：手口ごとに21個。押すと入力欄に入り、そのまま判定する
 
 ---
 
@@ -128,7 +128,7 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 
 ## 🧪 サンプル
 
-画面の「サンプルで試す」にある18個です。ドメインは例示用に予約された`.example`と`example.com`を使い、TLD・無料ホスティング・短縮URL・公式の例だけ実在の名前を使っています（ホスト名は架空です）。
+画面の「サンプルで試す」にある21個です。ドメインは例示用に予約された`.example`と`example.com`を使い、TLD・無料ホスティング・短縮URL・公式の例だけ実在の名前を使っています（ホスト名は架空です）。
 
 | 分類 | サンプル | 中身 | 判定 |
 |---|---|---|---|
@@ -147,7 +147,10 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 | 行き先を隠す | 二重の拡張子のファイル | `https://files.example/invoice.pdf.exe` | 目立つ兆候なし（1点） |
 | URLではないもの | javascript:スキーム | `javascript:alert('QR Risk Radar')` | 高 |
 | URLではないもの | data:スキーム | `data:text/html,<h1>QR Risk Radar</h1>` | 高 |
-| URLではないもの | Wi-Fiの設定 | `WIFI:T:WPA;S:Free-Cafe-WiFi;P:12345678;;` | URL以外 |
+| URLではないもの | 暗号化なしのWi-Fi | `WIFI:T:nopass;S:Free-Cafe-WiFi;;` | URL以外 |
+| URLではないもの | 2段階認証の鍵 | `otpauth://totp/Example:alice@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example` | URL以外 |
+| URLではないもの | 本文にURLがあるSMS | `SMSTO:+81-90-0000-0000:Your parcel could not be delivered. Reschedule: https://sagawa-redelivery.example/` | URL以外 |
+| URLではないもの | 有料番号とURLの連絡先 | `MECARD:N:Support,Center;TEL:0570-000-000;URL:https://support-center.example/;;` | URL以外 |
 | 本物（比べるため） | Amazonの公式のログイン | `https://www.amazon.co.jp/ap/signin` | 目立つ兆候なし（0点） |
 | 本物（比べるため） | 日本郵便の公式 | `https://www.post.japanpost.jp/` | 目立つ兆候なし（0点） |
 
@@ -155,7 +158,7 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 
 ### 読み取りの試験に使えるQRコードの画像
 
-`samples/qr/`の9枚は、上のサンプルを`tools/make-qr.mjs`でQRコードにしたものです（画面の「QRコードを作る」と同じ作り方）。
+`samples/qr/`の11枚は、上のサンプルを`tools/make-qr.mjs`でQRコードにしたものです（画面の「QRコードを作る」と同じ作り方）。
 
 | ファイル | 中身 | 判定 |
 |---|---|---|
@@ -166,8 +169,10 @@ JPCERT/CCの5月分の59.6%は「目立つ兆候なし」になります。乗�
 | `samples/qr/05_random.png` | `https://vzqxkwtr.top/jp/` | 高（4点） |
 | `samples/qr/06_shortener.png` | `https://bit.ly/3xY9Abc` | 目立つ兆候なし（1点） |
 | `samples/qr/07_javascript.png` | `javascript:alert('QR Risk Radar')` | 高 |
-| `samples/qr/08_wifi.png` | `WIFI:T:WPA;S:Free-Cafe-WiFi;P:12345678;;` | URL以外 |
+| `samples/qr/08_wifi.png` | `WIFI:T:nopass;S:Free-Cafe-WiFi;;` | URL以外 |
 | `samples/qr/09_official.png` | `https://www.amazon.co.jp/ap/signin` | 目立つ兆候なし（0点） |
+| `samples/qr/10_otp.png` | `otpauth://totp/Example:alice@example.com?secret=JBSWY3DPEHPK3PXP&issuer=Example` | URL以外 |
+| `samples/qr/11_sms.png` | `SMSTO:+81-90-0000-0000:Your parcel could not be delivered. Reschedule: https://sagawa-redelivery.example/` | URL以外 |
 
 `test/qr/`にも、以前から置いている5種類（PNGとSVG）があります。
 
@@ -314,8 +319,10 @@ qr-risk-radar/
 │       ├── 05_random.png                 # 無作為な文字列のドメイン
 │       ├── 06_shortener.png              # 短縮URL
 │       ├── 07_javascript.png             # javascript:スキーム
-│       ├── 08_wifi.png                   # Wi-Fiの設定
-│       └── 09_official.png               # Amazonの公式のログイン
+│       ├── 08_wifi.png                   # 暗号化なしのWi-Fi
+│       ├── 09_official.png               # Amazonの公式のログイン
+│       ├── 10_otp.png                    # 2段階認証の鍵
+│       └── 11_sms.png                    # 本文にURLがあるSMS
 ├── test/                                 # 自動テスト（node --test）と試験用の画像
 │   ├── core.test.js                      # 兆候と点数、model.jsの形
 │   ├── format.test.js                    # 行の長さ、app.jsに日本語の文字列がないこと
