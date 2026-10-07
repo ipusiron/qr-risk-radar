@@ -192,7 +192,7 @@ The result is a rough guide based only on the shape of the URL and cannot prove 
 - The QR code libraries are kept in `vendor/` and not loaded from a CDN. Tests check their SHA-256 against the npm packages
 - Input is rendered with `textContent`
 - Only "Domains you trust" and the UI language are saved (localStorage)
-- Only when you press "Inspect each character in WeirdString Inspector" does the tool open Day023 in a new tab with the content after the # in the URL. The part after # is never sent to the server, but it stays in that tab's URL (and the browser history)
+- Only when you press "Inspect each character in WeirdString Inspector" does the tool open Day023 in a new tab with the content after the # in the URL. The part after # is never sent to the server. Day023 removes the content from the tab's URL after loading it, but the first URL stays in the browser's browsing history
 
 See [SECURITY.md](SECURITY.md) (Japanese) for details.
 
@@ -236,7 +236,7 @@ A. No. Images are read only inside the browser. The only things saved are the li
 
 ### Q. Where does the content go when I press "Inspect each character in WeirdString Inspector"?
 
-A. It opens WeirdString Inspector on the same site (ipusiron.github.io) in a new tab and passes the content after the # in the URL. The part after # is never sent to the server. However, the content stays in that tab's URL, so if you do not want it in your browser history, close the tab and clear the history.
+A. It opens WeirdString Inspector on the same site (ipusiron.github.io) in a new tab and passes the content after the # in the URL. The part after # is never sent to the server. Day023 removes the content from the tab's URL after loading it, but the first URL stays in the browser's browsing history (checked in Edge and Firefox). If you do not want it there, delete it from the browsing history.
 
 ### Q. Is it OK to read a two-factor authentication setup QR code?
 
