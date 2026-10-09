@@ -165,6 +165,12 @@ The 13 images in `samples/qr/` are the samples above turned into QR codes with `
 
 ## 🎯 Use cases
 
+Ways of using this tool in particular
+
+- Confirming that the part before `@` is decoration and the real host is after it (URL-structure classes): paste `https://www.amazon.co.jp@evil.example.com/login` and the real host comes out as evil.example.com with the registrable domain example.com. The www.amazon.co.jp before `@` is the userinfo field, not the destination. Read from the left it looks like a famous name, but the browser connects to what is after the last `@`. It is practice in splitting a URL into scheme, userinfo, host and path
+- Confirming that the owner is decided from the right by the Public Suffix List (domain classes): the registrable domain of `amazon.co.jp.login-verify.ru` is login-verify.ru. Because it ends in `.ru`, the owner is decided down to one label inside that, and the amazon.co.jp on the left is just a label. For the genuine `www.amazon.co.jp` the registrable domain is amazon.co.jp. You can confirm that how far the owner reaches is counted from the public suffix on the right, not from a familiar word on the left
+- Confirming that look-alike characters are exposed by punycode (character-encoding and internationalized-domain classes): paste `https://аpple.com/` and, because the first а is Cyrillic, the host is shown as xn--pple-43d.com with a warning about mixing Cyrillic and Latin. It may look exactly like apple.com, but the ASCII punycode form shows it is a different domain. You can confirm, through the difference in encoding, the trick of passing off a fake as the real thing with look-alike letters from another script (a homograph)
+
 - Checking an SMS on a family member's phone: paste the URL before opening it and check together whether the owner (registrable domain) really belongs to that company. Even with "No obvious signs", it helps build the habit of confirming the same matter through the official app
 - Phishing drills at work: make a QR code of a fake URL on the page, put it on a training poster, and let people go as far as checking the owner with the tool after scanning it. Always state on the poster that it is for training
 - Inspecting QR codes in shops and facilities: regularly scan your own menus and payment notices to check that no fake sticker has been placed on top. If you add your shop's registrable domain under "Domains you trust", the genuine one shows as "Trusted"

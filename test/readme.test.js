@@ -227,3 +227,23 @@ test("README.en.md の構成: 日本語版と同じ見出しの並び（階層�
   // README.md の画像の枚数と同じ
   assert.equal(images.length, [...README.matchAll(/!\[[^\]]*\]\((assets\/[^)]+)\)/g)].length);
 });
+
+test("ユースケースの「このツールならではの使い方」の判定は計算部と同じ（日英）", () => {
+  const userinfo = C.analyze("https://www.amazon.co.jp@evil.example.com/login");
+  assert.equal(userinfo.url.host, "evil.example.com");
+  assert.equal(userinfo.url.username, "www.amazon.co.jp");
+  assert.equal(userinfo.url.registrable, "example.com");
+  assert.ok(userinfo.signals.some((s) => s.id === "userinfo"));
+  assert.equal(C.registrableDomain("amazon.co.jp.login-verify.ru"), "login-verify.ru");
+  assert.equal(C.registrableDomain("www.amazon.co.jp"), "amazon.co.jp");
+  const homo = C.analyze("https://аpple.com/");
+  assert.equal(homo.url.host, "xn--pple-43d.com");
+  assert.equal(homo.url.hostUnicode, "аpple.com");
+  assert.ok(homo.signals.some((s) => s.id === "idn-mixed"));
+  assert.equal(C.hostToUnicode("xn--pple-43d.com"), "аpple.com");
+  for (const md of [README, README_EN]) {
+    assert.ok(md.includes("evil.example.com") && md.includes("example.com"));
+    assert.ok(md.includes("login-verify.ru") && md.includes("amazon.co.jp"));
+    assert.ok(md.includes("xn--pple-43d.com"));
+  }
+});
